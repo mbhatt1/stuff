@@ -1,0 +1,18 @@
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.bbl
+*.blg
+
+# Lean build artifacts
+.lake/
+
+# OS
+.DS_Store
+
+# IDE
+.claude/

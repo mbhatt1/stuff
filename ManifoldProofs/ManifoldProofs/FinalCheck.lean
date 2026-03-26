@@ -1,4 +1,0 @@
-import ManifoldProofs.MoF_Cost_10_UnifiedTheory
-
-#print axioms MoF.MASTER_THEOREM_cost_asymmetry
-#check @MoF.MASTER_THEOREM_cost_asymmetry

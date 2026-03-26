@@ -1,1 +1,46 @@
-import ManifoldProofs.Basic
+-- Manifold of Failure: Formal Theory of Prompt Injection Defense Impossibility
+-- 34 files, ~200 theorems, zero sorry, three standard axioms (propext, Classical.choice, Quot.sound)
+
+-- Core Theory (10 files)
+import ManifoldProofs.MoF_01_Foundations
+import ManifoldProofs.MoF_02_BasinStructure
+import ManifoldProofs.MoF_03_ThresholdCrossing
+import ManifoldProofs.MoF_04_LipschitzBasin
+import ManifoldProofs.MoF_05_MonotoneConvergence
+import ManifoldProofs.MoF_06_Transferability
+import ManifoldProofs.MoF_07_AuthorityMonotonicity
+import ManifoldProofs.MoF_08_DefenseBarriers
+import ManifoldProofs.MoF_09_DimensionalScaling
+import ManifoldProofs.MoF_10_GradientAttack
+
+-- Cost Theory (10 files)
+import ManifoldProofs.MoF_Cost_01_BallVolume
+import ManifoldProofs.MoF_Cost_02_BasinVolume
+import ManifoldProofs.MoF_Cost_03_HittingTime
+import ManifoldProofs.MoF_Cost_04_Concentration
+import ManifoldProofs.MoF_Cost_05_AttackCost
+import ManifoldProofs.MoF_Cost_06_DefenseCost
+import ManifoldProofs.MoF_Cost_07_TransferCost
+import ManifoldProofs.MoF_Cost_08_CostRatio
+import ManifoldProofs.MoF_Cost_09_LipschitzEstimation
+import ManifoldProofs.MoF_Cost_10_UnifiedTheory
+
+-- Advanced Theory (10 files)
+import ManifoldProofs.MoF_Adv_01_BasinConnectedness
+import ManifoldProofs.MoF_Adv_02_BoundaryDimension
+import ManifoldProofs.MoF_Adv_03_FineTuning
+import ManifoldProofs.MoF_Adv_04_ModelScale
+import ManifoldProofs.MoF_Adv_05_Convexity
+import ManifoldProofs.MoF_Adv_06_Approximation
+import ManifoldProofs.MoF_Adv_07_Fragmentation
+import ManifoldProofs.MoF_Adv_08_Stability
+import ManifoldProofs.MoF_Adv_09_OptLandscape
+import ManifoldProofs.MoF_Adv_10_MeasureBounds
+
+-- Continuous Relaxation Bridge (discrete data → continuous theory)
+import ManifoldProofs.MoF_ContinuousRelaxation
+
+-- Capstone
+import ManifoldProofs.MoF_MasterTheorem
+import ManifoldProofs.MoF_Instantiation_Euclidean
+import ManifoldProofs.MoF_FinalVerification
