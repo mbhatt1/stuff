@@ -59,29 +59,29 @@
 \maketitle
 
 \begin{abstract}
-We prove two impossibility results for prompt injection defense.
-First, any continuous, utility-preserving defense on a connected
-Hausdorff space must fix boundary points of the alignment deviation
-surface---the basic impossibility. Second, if both the defense and the
-alignment deviation function are Lipschitz, the defense cannot
-uniformly reduce alignment deviation below $\tau - \varepsilon$ on a
-positive-measure band around the boundary: points within distance
-$\delta$ of a fixed boundary point satisfy
-$f(D(x)) \geq \tau - L(K\!+\!1)\delta$. The more aggressive the
-defense (larger Lipschitz constant~$K$), the wider the band on which
-this constraint binds.
+Prior work on LLM safety has focused on discovering adversarial inputs
+or bounding perturbation robustness around individual examples. We ask
+a different question: what are the \emph{geometric limits of defense
+design itself}?
 
-We close the discrete-continuous gap formally: the Tietze extension
-theorem guarantees that any finite set of behavioral observations
-admits continuous extensions for which both impossibilities hold.
-This does not claim the impossibility applies to the underlying
-discrete system directly, but to every continuous interpolant
-consistent with the observed data.
+We prove two results. First, any continuous, utility-preserving defense
+on a connected Hausdorff space must fix boundary points of the alignment
+deviation surface---it is structurally forced to leave them untouched.
+Second, when the defense and alignment function are both Lipschitz, the
+defense cannot uniformly reduce alignment deviation far below the
+threshold on a positive-measure band around the boundary:
+$f(D(x)) \geq \tau - L(K\!+\!1)\delta$ for points within distance
+$\delta$ of a fixed boundary point. The more aggressive the defense
+(larger~$K$), the wider the band this constraint covers.
 
-The full theory---including basin structure, fragmentation, iterative
-convergence, cross-model transferability, authority monotonicity,
-gradient ascent, fine-tuning stability, and exponential cost
-asymmetry---is machine-verified in Lean~4 with Mathlib (35~files,
+These are not statements about attacks or training---they are
+constraints on what any admissible defense mapping can do, independent
+of the model, data, or optimization procedure. The Tietze extension
+theorem ensures that any finite set of behavioral observations admits
+continuous extensions for which both impossibilities hold, bridging
+discrete data to continuous theory.
+
+The full theory is machine-verified in Lean~4 with Mathlib (35~files,
 $\sim$300 theorems, zero \texttt{sorry}, three standard axioms) and
 validated against empirical findings from three frontier LLMs.
 \end{abstract}
@@ -105,8 +105,16 @@ functions $D\colon X \to X$ that preprocess prompts before the model
 sees them, aiming to map unsafe inputs to safe equivalents while leaving
 safe inputs alone.
 
-We show that this goal is mathematically impossible. The result comes
-in two strengths.
+Prior work has largely focused on discovering or mitigating individual
+adversarial inputs. We ask a different question: what are the
+\emph{geometric limits of the defense mapping itself}? We show that
+under mild and commonly assumed design constraints---continuity and
+utility preservation---no defense can eliminate the safety boundary.
+Vulnerabilities arise not from specific inputs, but from the structure
+of the space and the constraints imposed on admissible defenses. This
+shifts the problem from adversarial search to geometric inevitability.
+
+The result comes in two strengths.
 
 \paragraph{The basic impossibility.}
 If the defense is continuous, utility-preserving, and the prompt space
@@ -133,13 +141,23 @@ Increasing $K$ (more aggressive defense) widens the region on which
 points untouched, while aggressiveness spreads the anchoring effect
 of the fixed point.
 
+\paragraph{Why continuity?}
+Continuity captures a natural requirement for practical defenses: small
+changes in input should not produce arbitrarily large changes in the
+defense's output, as such instability would degrade usability and
+reliability. Any defense based on learned representations, smooth
+transformations, or differentiable processing satisfies this constraint.
+Discontinuous defenses (hard blocklists, keyword filters) escape the
+theorem but suffer their own well-known failure modes.
+
+\paragraph{From discrete to continuous.}
 Both results apply to continuous interpolants of discrete data.
 The Tietze extension theorem guarantees that any finite set of
 behavioral observations in a normal space admits continuous extensions,
 and the impossibilities hold for every such extension
 (\Cref{thm:tietze}). This does not claim the results hold for the
-underlying discrete system directly, but for every continuous model
-consistent with the observations.
+underlying discrete token system directly, but for every continuous
+model consistent with the observations.
 
 The proof of the basic impossibility is five steps long and uses only
 point-set topology. The $\varepsilon$-robust version adds Lipschitz
@@ -185,10 +203,15 @@ and a substantial body of work has pursued formal verification of
 robustness properties---through abstract
 interpretation~\cite{singh2019abstract}, SMT-based
 methods~\cite{katz2017reluplex}, and randomized
-smoothing~\cite{cohen2019certified}. These approaches verify that
-particular inputs are robust to perturbation. Our work operates at a
-different level: rather than checking individual inputs, we prove a
-structural impossibility for the defense mechanism itself.
+smoothing~\cite{cohen2019certified}. These approaches characterize the
+existence of perturbations or bound robustness radii around individual
+inputs under specific norms. Our work operates at a different level:
+rather than checking individual inputs, we prove a \emph{structural
+constraint on the defense mapping itself}, independent of perturbation
+models, norms, or training procedures. Certified defenses provide
+guarantees about perturbation neighborhoods; our result constrains the
+\emph{global behavior} of the defense function, showing that no such
+defense can eliminate boundary regions altogether.
 
 \paragraph{Prompt injection and jailbreaking.}
 Techniques for finding individual vulnerabilities include gradient-based
@@ -198,18 +221,29 @@ and quality-diversity methods like Rainbow
 Teaming~\cite{samvelyan2024rainbow}. The Manifold of Failure
 framework~\cite{bhatt2025manifold} uses MAP-Elites to map the
 \emph{continuous topology} of failures rather than cataloguing
-individual instances. Our work provides the formal theory that
-underpins that framework.
+individual instances. Existing work identifies individual failure cases
+or distributions of attacks. Our result shows that these failures are
+not incidental but \emph{topologically unavoidable} under mild
+assumptions, providing a formal explanation for their persistence.
 
 \paragraph{Impossibility results in ML.}
-The no-free-lunch theorems~\cite{wolpert1997no} set fundamental limits
-on optimization, and the robustness--accuracy tradeoff
+The no-free-lunch theorems~\cite{wolpert1997no} limit average
+performance across tasks. The robustness--accuracy tradeoff
 literature~\cite{tsipras2018robustness} shows that adversarial
 robustness costs standard performance. Our result is different in
-character: it is a topological and metric impossibility, not a
-statistical tradeoff. It holds for \emph{any} continuous function on
-\emph{any} connected Hausdorff space, with no dependence on the
-learning algorithm, training data, or distribution.
+character from both: it is a topological and metric constraint, not
+a statistical tradeoff. It holds \emph{pointwise} for any continuous
+defense on a \emph{fixed task}, with no dependence on distributions,
+learning algorithms, or training data.
+
+\paragraph{Topological views of neural networks.}
+Work on decision boundary geometry, the manifold hypothesis, and
+topology of neural representations has established that topological
+structure matters for understanding neural networks. While our proof
+relies on elementary topology (continuity, connectedness, closure), the
+novelty lies in identifying that \emph{standard design constraints for
+LLM defenses induce a forced fixed-point structure at the safety
+boundary}---a connection that has not been previously characterized.
 
 \paragraph{Formal verification of ML systems.}
 Proof assistants like Lean and Coq have been applied to verify
