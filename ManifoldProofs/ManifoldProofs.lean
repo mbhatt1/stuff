@@ -43,6 +43,9 @@ import ManifoldProofs.MoF_ContinuousRelaxation
 -- ε-Robust Extension
 import ManifoldProofs.MoF_11_EpsilonRobust
 
+-- Discrete Impossibility (no Tietze needed)
+import ManifoldProofs.MoF_12_Discrete
+
 -- Capstone
 import ManifoldProofs.MoF_MasterTheorem
 import ManifoldProofs.MoF_Instantiation_Euclidean
