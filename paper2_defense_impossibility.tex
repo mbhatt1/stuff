@@ -1156,6 +1156,35 @@ from~\cite{bhatt2025manifold} shows the continuous surface predicts
 discrete behavior well ($R^2 > 0.85$ for GP fits), but a formal
 bridge from continuous volume to discrete token density remains open.
 
+\paragraph{Non-Hausdorff agent topologies.}
+In agentic systems with tool calls, state resets, and model swaps, the
+joint state-space may not be Hausdorff (distinct states may not have
+disjoint neighborhoods). The Hausdorff hypothesis is used in exactly
+one place: proving $\Fix(D)$ is closed (the diagonal is closed in
+$X \times X$). If $\Fix(D)$ is not closed, the continuous regularity
+proof breaks. However: (a)~the \emph{geometric lock} (\Cref{sec:meta})
+requires only connectedness, not Hausdorff---the clopen argument is
+purely about connected spaces; (b)~the discrete path requires no
+topology at all; (c)~if the agent's state transitions are continuous
+and the behavioral space (the projection onto alignment deviation) is
+Hausdorff even when the full state-space is not, the theorems apply to
+the projection. We leave a full treatment of non-Hausdorff agent
+topologies as future work, noting that the meta-theorem's regularity
+condition can potentially be established by mechanisms other than
+closed diagonals.
+
+\paragraph{Monitoring blind spot from shallow boundaries.}
+Raising $\tau$ to make the boundary benign shrinks $U_\tau$ but does
+not eliminate transversal crossings (\Cref{thm:crossing}). A steep
+landscape can create persistent unsafe basins (\Cref{thm:persistent})
+that lie \emph{beyond} the shallow boundary. An attacker could
+potentially ``tunnel'' through benign boundary behavior into a deep
+unsafe basin without triggering Lipschitz-based distance estimates,
+because the estimates are anchored at the (now-distant) boundary fixed
+point. This is not a flaw in the theory---it is a \emph{prediction}:
+monitoring based on boundary proximity may miss attacks that exploit
+interior basins far from the boundary.
+
 \paragraph{Benign boundary fails for binary safety constraints.}
 The engineering prescription ``raise $\tau$'' assumes that boundary-level
 behavior admits a spectrum of severity. For behavioral alignment

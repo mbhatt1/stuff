@@ -52,6 +52,9 @@ import ManifoldProofs.MoF_13_MultiTurn
 -- Representation-Independent Meta-Theorem
 import ManifoldProofs.MoF_14_MetaTheorem
 
+-- Nonlinear Agent Pipelines
+import ManifoldProofs.MoF_15_NonlinearAgents
+
 -- Capstone
 import ManifoldProofs.MoF_MasterTheorem
 import ManifoldProofs.MoF_Instantiation_Euclidean
