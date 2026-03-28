@@ -1,0 +1,126 @@
+⚠ [8035/8066] Replayed ManifoldProofs.MoF_10_GradientAttack
+warning: ManifoldProofs/MoF_10_GradientAttack.lean:190:2: 'simp at h2' is a flexible tactic modifying 'h2'. Try 'simp?' and use the suggested 'simp only [...]'. Alternatively, use `suffices` to explicitly state the simplified form.
+
+Note: This linter can be disabled with `set_option linter.flexible false`
+info: ManifoldProofs/MoF_10_GradientAttack.lean:191:2: 'exact h2' uses 'h2'!
+warning: ManifoldProofs/MoF_10_GradientAttack.lean:216:6: 'simp [map_neg]' is a flexible tactic modifying '⊢'. Try 'simp?' and use the suggested 'simp only [...]'. Alternatively, use `suffices` to explicitly state the simplified form.
+
+Note: This linter can be disabled with `set_option linter.flexible false`
+info: ManifoldProofs/MoF_10_GradientAttack.lean:216:6: Try this:
+  [apply] simp only [map_neg, Left.neg_pos_iff]
+info: ManifoldProofs/MoF_10_GradientAttack.lean:217:6: 'exact lt_of_le_of_ne h (fun h_eq => hv h_eq)' uses '⊢'!
+⚠ [8042/8066] Replayed ManifoldProofs.MoF_Cost_07_TransferCost
+warning: ManifoldProofs/MoF_Cost_07_TransferCost.lean:71:0: `estimation_cost` has the hypothesis:
+  • [DecidableEq ι] (#2)
+which is not used in the remainder of the type.
+
+Consider removing this hypothesis and using `classical` in the proof instead. For terms, consider using `open scoped Classical in` at the term level (not the command level).
+
+Note: This linter can be disabled with `set_option linter.unusedDecidableInType false`
+warning: ManifoldProofs/MoF_Cost_07_TransferCost.lean:88:0: `more_samples_better_estimate` has the hypothesis:
+  • [DecidableEq ι] (#2)
+which is not used in the remainder of the type.
+
+Consider removing this hypothesis and using `classical` in the proof instead. For terms, consider using `open scoped Classical in` at the term level (not the command level).
+
+Note: This linter can be disabled with `set_option linter.unusedDecidableInType false`
+⚠ [8046/8066] Replayed ManifoldProofs.MoF_Adv_01_BasinConnectedness
+warning: ManifoldProofs/MoF_Adv_01_BasinConnectedness.lean:13:100: This line exceeds the 100 character limit, please shorten it!
+
+Note: This linter can be disabled with `set_option linter.style.longLine false`
+⚠ [8059/8066] Replayed ManifoldProofs.MoF_13_MultiTurn
+warning: ManifoldProofs/MoF_13_MultiTurn.lean:321:0: `knowledge_constrains_boundary` has the hypothesis:
+  • [DecidableEq X] (#3)
+which is not used in the remainder of the type.
+
+Consider removing this hypothesis and using `classical` in the proof instead. For terms, consider using `open scoped Classical in` at the term level (not the command level).
+
+Note: This linter can be disabled with `set_option linter.unusedDecidableInType false`
+ℹ [8064/8066] Replayed ManifoldProofs.MoF_FinalVerification
+info: ManifoldProofs/MoF_FinalVerification.lean:70:0: @MoF.basin_isOpen : ∀ {X : Type u_1} [inst : TopologicalSpace X] (f : X → ℝ),
+  Continuous f → ∀ (τ : ℝ), IsOpen (MoF.Basin f τ)
+info: ManifoldProofs/MoF_FinalVerification.lean:71:0: @MoF.basin_measure_pos : ∀ {X : Type u_1} [inst : TopologicalSpace X] [inst_1 : MeasurableSpace X]
+  {μ : MeasureTheory.Measure X} [μ.IsOpenPosMeasure] (f : X → ℝ),
+  Continuous f → ∀ (τ : ℝ) (p : X), f p > τ → 0 < μ (MoF.Basin f τ)
+info: ManifoldProofs/MoF_FinalVerification.lean:74:0: @MoF.lipschitz_basin_ball : ∀ {X : Type u_1} [inst : PseudoMetricSpace X] {f : X → ℝ} {L : NNReal},
+  LipschitzWith L f → ∀ {p p' : X} {τ : ℝ}, 0 < ↑L → f p > τ → dist p' p < (f p - τ) / ↑L → f p' > τ
+info: ManifoldProofs/MoF_FinalVerification.lean:75:0: @MoF.perturbation_stability : ∀ {X : Type u_1} [inst : PseudoMetricSpace X] {f : X → ℝ} {L : NNReal},
+  LipschitzWith L f →
+    ∀ {p p' : X} {τ : ℝ}, 0 < ↑L → f p > τ → p' ∈ Metric.ball p (MoF.robustnessRadius (f p) τ ↑L) → f p' > τ
+info: ManifoldProofs/MoF_FinalVerification.lean:78:0: MoF.attackSeq_convergent : ∀ (op : MoF.AttackOperator) (x₀ : op.X),
+  ∃ L, Filter.Tendsto (MoF.attackSeq op x₀) Filter.atTop (nhds L)
+info: ManifoldProofs/MoF_FinalVerification.lean:79:0: MoF.finite_steps_bound : ∀ (op : MoF.AttackOperator) (x₀ : op.X) (δ : ℝ),
+  0 < δ → (∀ (x : op.X), op.score x + δ ≤ op.score (op.T x)) → ∀ (n : ℕ), ↑n * δ ≤ 1
+info: ManifoldProofs/MoF_FinalVerification.lean:82:0: @MoF.transfer_attack : ∀ {X : Type u_1} {f g : X → ℝ} {δ : ℝ},
+  (∀ (x : X), |f x - g x| ≤ δ) → ∀ {p : X} {τ : ℝ}, f p > τ + δ → g p > τ
+info: ManifoldProofs/MoF_FinalVerification.lean:83:0: @MoF.identical_models_identical_basins : ∀ {X : Type u_1} {f g : X → ℝ} {δ : ℝ},
+  (∀ (x : X), |f x - g x| ≤ δ) → δ = 0 → ∀ (τ : ℝ), {x | f x > τ} = {x | g x > τ}
+info: ManifoldProofs/MoF_FinalVerification.lean:86:0: @MoF.authority_escalation : ∀ {Y : Type u_1} (f : Y → ℝ → ℝ) (τ : ℝ) (y : Y) (x x' : ℝ),
+  MoF.MonotoneInAuthority f → MoF.VulnerableAt f τ y x → x ≤ x' → MoF.VulnerableAt f τ y x'
+info: ManifoldProofs/MoF_FinalVerification.lean:87:0: @MoF.critical_threshold_exists : ∀ {Y : Type u_1} (f : Y → ℝ → ℝ) (τ : ℝ) (y : Y),
+  Continuous (f y) → ∀ (x_lo : ℝ), f y x_lo ≤ τ → ∀ (x_hi : ℝ), f y x_hi > τ → ∃ x_star, f y x_star = τ
+info: ManifoldProofs/MoF_FinalVerification.lean:88:0: @MoF.monotone_boundary : ∀ {Y : Type u_1} [inst : Preorder Y] (f : Y → ℝ → ℝ) (τ : ℝ) (y y' : Y) (x_star : ℝ),
+  MoF.MonotoneInAuthority f →
+    MoF.MonotoneInIndirection f →
+      Continuous (f y') → f y x_star = τ → y ≤ y' → ∀ (x_lo : ℝ), f y' x_lo ≤ τ → ∃ x_star' ≤ x_star, f y' x_star' = τ
+info: ManifoldProofs/MoF_FinalVerification.lean:91:0: @MoF.defense_incompleteness : ∀ {X : Type u_1} [inst : TopologicalSpace X] [T2Space X] [ConnectedSpace X] {D : X → X}
+  {f : X → ℝ},
+  Continuous D →
+    Continuous f →
+      ∀ {τ : ℝ},
+        (∀ (x : X), f x < τ → D x = x) →
+          (∃ a, f a < τ) → (∃ b, f b > τ) → ∃ z, f z = τ ∧ D z = z ∧ f (D z) = τ ∧ ¬f (D z) < τ
+info: ManifoldProofs/MoF_FinalVerification.lean:92:0: @MoF.boundary_fixed_points_nonempty : ∀ {X : Type u_1} [inst : TopologicalSpace X] [T2Space X] [ConnectedSpace X]
+  {D : X → X} {f : X → ℝ},
+  Continuous D →
+    Continuous f →
+      ∀ {τ : ℝ},
+        (∀ (x : X), f x < τ → D x = x) →
+          (∃ a, f a < τ) → (∃ b, f b > τ) → ∃ z, f z = τ ∧ z ∈ closure {x | f x < τ} ∧ z ∉ {x | f x < τ} ∧ D z = z
+info: ManifoldProofs/MoF_FinalVerification.lean:93:0: MoF.not_all_boundary_fixed : ∃ f τ, Continuous f ∧ ∃ z, f z = τ ∧ z ∉ closure {x | f x < τ}
+info: ManifoldProofs/MoF_FinalVerification.lean:96:0: @MoF.grid_exponential_growth : ∀ {N : ℕ}, 2 ≤ N → Filter.Tendsto (fun d ↦ ↑N ^ d) Filter.atTop Filter.atTop
+info: ManifoldProofs/MoF_FinalVerification.lean:97:0: @MoF.no_fixed_budget_defense : ∀ {N : ℕ}, 2 ≤ N → ∀ (B : ℕ), ∃ d₀, ∀ (d : ℕ), d₀ ≤ d → B < N ^ d
+info: ManifoldProofs/MoF_FinalVerification.lean:100:0: @MoF.multivariate_ascent_direction : ∀ {E : Type u_1} [inst : NormedAddCommGroup E] [inst_1 : NormedSpace ℝ E]
+  {f : E → ℝ} {f' : E →L[ℝ] ℝ} {x : E}, HasFDerivAt f f' x → f' ≠ 0 → ∃ v, ∃ ε > 0, f (x + ε • v) > f x
+info: ManifoldProofs/MoF_FinalVerification.lean:101:0: @MoF.discrete_ascent_improvement : ∀ {f : ℝ → ℝ} {x d : ℝ},
+  HasDerivAt f d x → 0 < d → ∀ᶠ (h : ℝ) in nhdsWithin 0 (Set.Ioi 0), f (x + h) > f x
+info: ManifoldProofs/MoF_FinalVerification.lean:104:0: @MoF.ball_measure_pos : ∀ {n : ℕ} (x : EuclideanSpace ℝ (Fin n)) {r : ℝ},
+  0 < r → 0 < MeasureTheory.volume (Metric.ball x r)
+info: ManifoldProofs/MoF_FinalVerification.lean:107:0: @MoF.basin_measure_ge_ball_pos : ∀ {X : Type u_1} [inst : TopologicalSpace X] [inst_1 : MeasurableSpace X]
+  {μ : MeasureTheory.Measure X} [μ.IsOpenPosMeasure] {f : X → ℝ},
+  Continuous f → ∀ {p : X} {τ : ℝ}, f p > τ → 0 < μ {x | f x > τ}
+info: ManifoldProofs/MoF_FinalVerification.lean:110:0: MoF.miss_probability_vanishes : ∀ (p : ℝ), 0 < p → p ≤ 1 → Filter.Tendsto (fun n ↦ (1 - p) ^ n) Filter.atTop (nhds 0)
+info: ManifoldProofs/MoF_FinalVerification.lean:111:0: MoF.hit_probability_tends_to_one : ∀ (p : ℝ),
+  0 < p → p ≤ 1 → Filter.Tendsto (fun n ↦ 1 - (1 - p) ^ n) Filter.atTop (nhds 1)
+info: ManifoldProofs/MoF_FinalVerification.lean:114:0: @MoF.estimation_error_bound_unsafe : ∀ {X : Type u_1} {f_hat f : X → ℝ} {ε : ℝ},
+  (∀ (x : X), |f_hat x - f x| ≤ ε) → ∀ {x : X} {τ : ℝ}, f_hat x > τ + ε → f x > τ
+info: ManifoldProofs/MoF_FinalVerification.lean:115:0: @MoF.estimation_error_bound_safe : ∀ {X : Type u_1} {f_hat f : X → ℝ} {ε : ℝ},
+  (∀ (x : X), |f_hat x - f x| ≤ ε) → ∀ {x : X} {τ : ℝ}, f_hat x < τ - ε → f x < τ
+info: ManifoldProofs/MoF_FinalVerification.lean:118:0: MoF.attack_cost_upper_bound : ∀ (δ : ℝ),
+  0 < δ →
+    ∀ (score : ℕ → ℝ),
+      (∀ (n : ℕ), 0 ≤ score n) →
+        (∀ (n : ℕ), score n ≤ 1) → (∀ (n : ℕ), score n + δ ≤ score (n + 1)) → ∀ (n : ℕ), ↑n * δ ≤ 1
+info: ManifoldProofs/MoF_FinalVerification.lean:119:0: MoF.attack_reaches_threshold : ∀ (score₀ δ τ : ℝ) (score : ℕ → ℝ),
+  score 0 = score₀ → (∀ (n : ℕ), score n + δ ≤ score (n + 1)) → ∀ (n : ℕ), score₀ + ↑n * δ > τ → score n > τ
+info: ManifoldProofs/MoF_FinalVerification.lean:122:0: @MoF.defense_cost_exponential : ∀ {r : ℝ},
+  0 < r → r < 1 → Filter.Tendsto (fun d ↦ (1 / r) ^ d) Filter.atTop Filter.atTop
+info: ManifoldProofs/MoF_FinalVerification.lean:123:0: @MoF.critical_dimension : ∀ {r B : ℝ}, 0 < r → r < 1 → 0 < B → ∃ d₀, ∀ (d : ℕ), d₀ ≤ d → B < (1 / r) ^ d
+info: ManifoldProofs/MoF_FinalVerification.lean:126:0: @MoF.transfer_margin_needed : ∀ {X : Type u_1} {f g : X → ℝ} {δ : ℝ},
+  (∀ (x : X), |f x - g x| ≤ δ) → ∀ {p : X} {τ : ℝ}, f p > τ + δ → g p > τ
+info: ManifoldProofs/MoF_FinalVerification.lean:127:0: @MoF.zero_distance_free_transfer : ∀ {X : Type u_1} {f g : X → ℝ} {δ : ℝ},
+  (∀ (x : X), |f x - g x| ≤ δ) → δ = 0 → ∀ (τ : ℝ), {x | f x > τ} = {x | g x > τ}
+info: ManifoldProofs/MoF_FinalVerification.lean:130:0: @MoF.lipschitz_estimation_error : ∀ {X : Type u_1} [inst : PseudoMetricSpace X] {f : X → ℝ} {L : NNReal},
+  LipschitzWith L f → ∀ (x x₀ : X), |f x - f x₀| ≤ ↑L * dist x x₀
+info: ManifoldProofs/MoF_FinalVerification.lean:131:0: @MoF.total_estimation_budget : ∀ {b : ℝ}, 1 < b → ∀ (M : ℝ), ∃ d, M < b ^ d
+info: ManifoldProofs/MoF_FinalVerification.lean:139:0: 'MoF.defense_incompleteness' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: ManifoldProofs/MoF_FinalVerification.lean:142:0: 'MoF.attackSeq_convergent' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: ManifoldProofs/MoF_FinalVerification.lean:145:0: 'MoF.transfer_attack' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: ManifoldProofs/MoF_FinalVerification.lean:148:0: 'MoF.authority_escalation' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: ManifoldProofs/MoF_FinalVerification.lean:151:0: 'MoF.multivariate_ascent_direction' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: ManifoldProofs/MoF_FinalVerification.lean:154:0: 'MoF.no_fixed_budget_defense' depends on axioms: [propext, Quot.sound]
+info: ManifoldProofs/MoF_FinalVerification.lean:157:0: 'MoF.lipschitz_basin_ball' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: ManifoldProofs/MoF_FinalVerification.lean:160:0: 'MoF.basin_measure_ge_ball_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: ManifoldProofs/MoF_FinalVerification.lean:163:0: 'MoF.hit_probability_tends_to_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: ManifoldProofs/MoF_FinalVerification.lean:166:0: 'MoF.defense_cost_exponential' depends on axioms: [propext, Classical.choice, Quot.sound]
+Build completed successfully (8066 jobs).
