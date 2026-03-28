@@ -88,7 +88,7 @@ require no topology, and extend the theory to multi-turn interactions
 (randomization does not help), and capacity parity (utility preservation
 taxes the defense even under equal resources).
 
-The paper defines the theoretical speed limit for AI safety. It proves we can't build a `Perfect Shield' in a continuous space. However, by using multi-layered, discontinuous defenses and ensuring our boundary behavior is benign, we can operate safely within those limits. The `Manifold of Failure' exists, but we can ensure it's empty of actual harm. The full theory is machine-verified in Lean~4 with Mathlib (37~files,
+The paper defines the theoretical speed limit for AI safety. It proves we can't build a `Perfect Shield' in a continuous space. However, by using multi-layered, discontinuous defenses and ensuring our boundary behavior is benign, we can operate safely within those limits. The `Manifold of Failure' exists, but we can ensure it's empty of actual harm. The full theory is machine-verified in Lean~4 with Mathlib (38~files,
 $\sim$300 theorems, zero \texttt{sorry}, three standard axioms) and
 validated against empirical findings from three frontier LLMs. \url{https://github.com/mbhatt1/stuff/tree/main/ManifoldProofs}
 \end{abstract}
@@ -206,7 +206,7 @@ for each.
     (\Cref{sec:landscape,sec:attacks,sec:stability,sec:cost}).
   \item Theory--experiment correspondence with three LLMs
     (\Cref{sec:experiments}).
-  \item Lean~4 artifact: 37 files, $\sim$300 theorems, zero
+  \item Lean~4 artifact: 38 files, $\sim$300 theorems, zero
     \texttt{sorry}, three standard axioms (\Cref{sec:artifact}).
 \end{itemize}
 
@@ -966,11 +966,90 @@ sidesteps the capacity tax.
 
 
 % ============================================================
+\section{Why the Impossibility Is Inescapable}
+\label{sec:meta}
+
+The preceding sections establish impossibility via multiple routes:
+continuous topology, Lipschitz metric structure, discrete counting,
+multi-turn dynamics, stochastic expectations, and capacity constraints.
+It is natural to ask whether these are separate results that happen to
+agree, or instances of a single underlying phenomenon.
+
+They are instances of a single phenomenon.
+
+\begin{theorem}[Representation-Independent Meta-Theorem]
+\label{thm:meta}
+Let $X$ be any set, $S \subseteq X$ nonempty and proper (the safe
+region), and $D\colon X \to X$ a defense satisfying:
+\begin{enumerate}[nosep]
+  \item \emph{Utility preservation}: $D(x) = x$ for all $x \in S$.
+  \item \emph{Bounded regularity}: the fixed-point set
+    $\Fix(D) = \{x : D(x) = x\}$ strictly contains $S$.
+\end{enumerate}
+Then there exists $x \notin S$ with $D(x) = x$---the defense fixes a
+non-safe input.
+\end{theorem}
+
+\begin{proof}
+$\Fix(D) \supsetneq S$ implies $\Fix(D) \setminus S \neq \emptyset$.
+Any $x$ in this difference satisfies $x \notin S$ and $D(x) = x$.
+\end{proof}
+
+The content is not in the conclusion---which is a triviality of set
+theory---but in the \emph{regularity condition} that forces
+$\Fix(D) \supsetneq S$. Each path through the theory provides a
+different proof that this condition holds:
+
+\begin{center}
+\small
+\begin{tabular}{@{}lp{8cm}@{}}
+\toprule
+\textbf{Path} & \textbf{Why $\Fix(D) \supsetneq S$} \\
+\midrule
+Continuous (Tier~1)
+  & $\Fix(D)$ is closed (Hausdorff), $S$ is open and not closed
+    (connected), so $\cl{S} \subseteq \Fix(D)$ but
+    $\cl{S} \supsetneq S$. \\[3pt]
+Lipschitz (Tier~2)
+  & Same as Tier~1, plus Lipschitz bounds constrain how far the
+    defense can move points near the fixed boundary. \\[3pt]
+Transversal (Tier~3)
+  & Same as Tier~2, plus steep slope forces $f(D(x)) > \tau$
+    on positive-measure set. \\[3pt]
+Discrete
+  & IVT on finite ordered set forces a crossing; utility preservation
+    fixes the safe endpoint. \\[3pt]
+Stochastic
+  & $g - f$ vanishes on $S$ and is continuous, so it vanishes on
+    $\cl{S}$; expected AD $= \tau$ at boundary. \\[3pt]
+Multi-turn
+  & Regularity holds at \emph{each} turn independently. \\[3pt]
+Capacity
+  & Finite capacity $<$ attack surface forces pigeonhole collision. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent For $\Fix(D)$ to equal $S$ exactly---the only way to escape
+the meta-theorem---$S$ would need to be simultaneously open (as a
+preimage of an open set under a continuous $f$) and closed (as a
+fixed-point set of a continuous $D$). In a connected space with both
+safe and unsafe inputs, no proper nonempty subset is both open and
+closed. This is the geometric lock.
+
+The meta-theorem is representation-independent: it does not care whether
+$X$ is $\R^n$, a discrete token space, a probability simplex, or an
+abstract set. It requires only that some mechanism---topological,
+metric, combinatorial, or information-theoretic---forces the
+fixed-point set to spill beyond the safe region.
+
+
+% ============================================================
 \section{The Lean Artifact}
 \label{sec:artifact}
 
 The complete theory is verified in Lean~4.28.0 with Mathlib~v4.28.0.
-The artifact comprises 37 files:
+The artifact comprises 38 files:
 \begin{itemize}[nosep]
   \item 10 core theory files (MoF\_01--MoF\_10)
   \item 10 cost theory files (MoF\_Cost\_01--MoF\_Cost\_10)
@@ -981,6 +1060,8 @@ The artifact comprises 37 files:
   \item 1 discrete impossibility (MoF\_12\_Discrete)
   \item 1 multi-turn + stochastic + capacity parity
     (MoF\_13\_MultiTurn)
+  \item 1 representation-independent meta-theorem
+    (MoF\_14\_MetaTheorem)
   \item 3 capstone files (MasterTheorem, Euclidean instantiation,
     verification)
 \end{itemize}
@@ -1050,17 +1131,15 @@ Tier~3 (persistent unsafe region): under transversality, the defense
 leaves positive-measure volume genuinely unsafe---$f(D(x)) > \tau$
 persists.
 
-The key insight is not about attacks or training but about the
-\emph{geometry of the defense itself}: continuity and utility
-preservation together create an anchor at the boundary that constrains
-what the defense can do in its neighborhood, and metric structure
-(Lipschitz bounds) makes this constraint quantitative and volumetric.
-
-The discrete-continuous gap is addressed via Tietze extension and a
-parallel set of purely discrete results (\Cref{sec:discrete}). The
-impossibility extends to multi-turn interactions (recurs every turn),
-stochastic defenses (randomization does not help), and capacity parity
-(utility preservation taxes the defense even with equal resources).
+A representation-independent meta-theorem (\Cref{thm:meta}) reveals the
+common structure: every path through the theory proves the same thing---that
+the defense's fixed-point set must spill beyond the safe region.
+Continuous topology, Lipschitz bounds, discrete counting, stochastic
+expectations, multi-turn dynamics, and capacity constraints all force
+this spillover through different mechanisms, but the conclusion is
+identical. The impossibility is not an artifact of any particular
+representation; it is a consequence of combining utility preservation
+with any form of bounded regularity.
 Supporting theorems show that vulnerabilities come in
 basins, attacks converge and transfer, vulnerabilities survive
 fine-tuning, and defense cost grows exponentially. Each result is
@@ -1070,7 +1149,7 @@ The practical prescription: make the boundary shallow (raise~$\tau$),
 smooth (reduce~$L$), and low-dimensional (constrain the interface).
 GPT-5-Mini's ceiling at $\AD = 0.50$ shows this working in practice.
 
-The full theory is machine-verified in Lean~4: 37 files, approximately
+The full theory is machine-verified in Lean~4: 38 files, approximately
 300 theorems, zero \texttt{sorry}, three standard axioms.
 
 
