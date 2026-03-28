@@ -1,6 +1,5 @@
 \documentclass[11pt]{article}
 
-% Packages
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb,amsthm}
@@ -12,7 +11,6 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{xcolor}
 
-% Theorem environments
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{corollary}[theorem]{Corollary}
@@ -22,7 +20,6 @@
 \newtheorem{example}[theorem]{Example}
 \newtheorem{counterexample}[theorem]{Counterexample}
 
-% Commands
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\cl}[1]{\overline{#1}}
@@ -33,138 +30,54 @@
 \newcommand{\dist}{\operatorname{dist}}
 
 \title{Geometric Limits of Defense Design:\\
-  Impossibility Theorems for Continuous\\
-  Prompt Injection Defenses}
+  Impossibility Theorems for Prompt Injection Defenses}
 
 \author{
-  Manish Bhatt\thanks{Corresponding author: \texttt{manish.bhatt13212@gmail.com}. This work was conducted independently and does not reflect the views of the authors' respective employers.} \\
-  \and
-  Sarthak Munshi \\
-  \and
-  Vineeth Sai Narajala \\
-  \and
-  Idan Habler \\
-  \and
-  Ammar Al-Kahfah \\
-  \and
-  Ken Huang \\
-  \and
-  Blake Gatto \\
+  Manish Bhatt\thanks{Corresponding author: \texttt{manish.bhatt13212@gmail.com}. Independent work.} \\
+  \and Sarthak Munshi \\ \and Vineeth Sai Narajala \\
+  \and Idan Habler \\ \and Ammar Al-Kahfah \\
+  \and Ken Huang \\ \and Blake Gatto \\
 }
-
 \date{}
 
 \begin{document}
-
 \maketitle
 
 \begin{abstract}
-Prior work on LLM safety has focused on discovering adversarial inputs or bounding perturbation robustness around individual examples. We ask a different question: what are the \emph{geometric limits of defense design itself}?
-
-We prove three results of increasing strength. First, any continuous, utility-preserving defense on a connected Hausdorff space must fix boundary points of the alignment deviation surface (\emph{boundary fixation}). Second, when the defense and alignment function are both Lipschitz, the defense cannot uniformly reduce alignment deviation far below the threshold on a positive-measure band around the boundary (\emph{$\varepsilon$-robust constraint}). Third, under a transversality condition---the alignment surface rises faster than the defense can pull it down---the defense leaves a \emph{positive-measure region genuinely unsafe}: $f(D(x)) > \tau$ persists over volume (\emph{persistent unsafe region}).
-
-These are not statements about attacks or training---they are constraints on what any admissible defense mapping can do, independent of the model, data, or optimization procedure. The Tietze extension theorem ensures that any finite set of behavioral observations admits continuous extensions for which all three impossibilities hold.
-
-We also prove a parallel set of discrete impossibility results that require no topology, and extend the theory to multi-turn interactions (the impossibility recurs at every turn), stochastic defenses (randomization does not help), and capacity parity (utility preservation taxes the defense even under equal resources).
-
-The paper defines the theoretical speed limit for AI safety. It proves we can't build a `Perfect Shield' in a continuous space. However, by using multi-layered, discontinuous defenses and ensuring our boundary behavior is benign, we can operate safely within those limits. The `Manifold of Failure' exists, but we can ensure it's empty of actual harm. The full theory is machine-verified in Lean~4 with Mathlib (39~files, $\sim$300 theorems, zero \texttt{sorry}, three standard axioms) and validated against empirical findings from three frontier LLMs. \url{https://github.com/mbhatt1/stuff/tree/main/ManifoldProofs}
+We characterize the geometric limits of prompt injection defense. We prove three results of increasing strength: (1)~any continuous, utility-preserving defense on a connected Hausdorff space must fix boundary points of the alignment deviation surface; (2)~when both defense and alignment function are Lipschitz, the defense cannot uniformly reduce alignment deviation far below threshold on a positive-measure band; (3)~under a transversality condition, the defense leaves a positive-measure region genuinely unsafe. We also establish parallel discrete results requiring no topology, and extend to multi-turn, stochastic, and pipeline settings. A representation-independent meta-theorem unifies all paths: utility preservation plus bounded regularity forces the defense's fixed-point set to spill beyond the safe region. The full theory is machine-verified in Lean~4 (39~files, $\sim$300 theorems, zero \texttt{sorry}, three standard axioms) and compared with empirical findings from three frontier LLMs~\cite{bhatt2025manifold}. Artifact: \url{https://github.com/mbhatt1/stuff/tree/main/ManifoldProofs}
 \end{abstract}
 
 % ============================================================
+% MAIN BODY (9 pages)
+% ============================================================
+
 \section{Introduction}
 \label{sec:intro}
 
 Can you build a wrapper around a language model that eliminates all prompt injection vulnerabilities?
 
-Most current work on LLM safety implicitly assumes the answer is yes---at least in principle, even if current tools fall short in practice. The defense mechanisms people have proposed span a wide range: input classifiers that flag suspicious prompts~\cite{alon2023detecting}, output filters that catch unsafe completions~\cite{inan2023llama}, and constitutional rewriting pipelines that reshape model behavior~\cite{bai2022constitutional}. But despite their differences, all of these defenses share the same underlying structure: they are functions $D\colon X \to X$ that preprocess prompts before the model sees them, aiming to map unsafe inputs to safe equivalents while leaving safe inputs alone.
+The defense mechanisms proposed to date---input classifiers~\cite{alon2023detecting}, output filters~\cite{inan2023llama}, constitutional rewriting~\cite{bai2022constitutional}---share the same structure: a function $D\colon X \to X$ that preprocesses prompts, mapping unsafe inputs to safe equivalents while leaving safe inputs alone. We study the geometric limits of this mapping.
 
-Prior work has largely focused on discovering or mitigating individual adversarial inputs. We ask a different question: what are the \emph{geometric limits of the defense mapping itself}? We show that under mild and commonly assumed design constraints---continuity and utility preservation---no defense can eliminate the safety boundary. Vulnerabilities arise not from specific inputs, but from the structure of the space and the constraints imposed on admissible defenses. This shifts the problem from adversarial search to geometric inevitability.
+We prove three results of increasing strength. \textbf{Tier~1} (\Cref{thm:main}): if $D$ is continuous, utility-preserving, and the space is connected, $D$ must fix boundary points ($f(z)=\tau$, $D(z)=z$). \textbf{Tier~2} (\Cref{thm:eps-robust}): if also Lipschitz, $f(D(x)) \geq \tau - L(K+1)\delta$ for $x$ within distance $\delta$ of the fixed point. \textbf{Tier~3} (\Cref{thm:persistent}): under transversality, the defense leaves positive-measure volume genuinely unsafe. A representation-independent meta-theorem (\Cref{thm:meta}) unifies all paths: utility preservation plus any form of bounded regularity forces $\Fix(D) \supsetneq S_\tau$.
 
-We prove three results of increasing strength.
-
-\paragraph{Tier~1: Boundary fixation.}
-If the defense is continuous, utility-preserving, and the prompt space is connected, then the defense must fix at least one boundary point---a prompt where alignment deviation equals the threshold exactly---passing it through with no remediation (\Cref{thm:main}). The proof is five steps of point-set topology.
-
-\paragraph{Tier~2: $\varepsilon$-robust constraint.}
-If the defense is also $K$-Lipschitz and the alignment deviation function is $L$-Lipschitz, the defense cannot uniformly reduce alignment deviation far below~$\tau$ on a neighborhood of the fixed boundary point. For any $x$ within distance $\delta$ of the fixed point~$z$:
-\begin{equation}\label{eq:eps-bound}
-  f(D(x)) \;\geq\; \tau - L(K+1)\,\delta.
-\end{equation}
-The $\varepsilon$-band $\{x : \tau - \varepsilon \leq f(x) \leq \tau\}$ has positive measure for every $\varepsilon > 0$~(\Cref{thm:band-measure}). This constrains the \emph{depth} to which the defense can push near-boundary points into the safe region, though it does not by itself prevent the defense from nudging them slightly below~$\tau$.
-
-\paragraph{Tier~3: Persistent unsafe region.}
-Under a transversality condition---the alignment surface has directional slope exceeding $L(K+1)$ at the boundary---the defense leaves a \emph{positive-measure region genuinely unsafe}:
-\begin{equation}\label{eq:persistent}
-  f(D(x)) > \tau \quad\text{for all } x \in \mathcal{S}, \qquad \mu(\mathcal{S}) > 0.
-\end{equation}
-This is the strongest result: not boundary fixation, not a near-threshold band, but genuine persistent unsafe volume~(\Cref{thm:persistent}). The condition holds whenever the alignment surface rises faster than the defense can pull it down---empirically observed in all three models we study.
-
-\paragraph{Why continuity?}
-Continuity captures a natural requirement for practical defenses: small changes in input should not produce arbitrarily large changes in the defense's output, as such instability would degrade usability and reliability. Any defense based on learned representations, smooth transformations, or differentiable processing satisfies this constraint. Discontinuous defenses (hard blocklists, keyword filters) escape the theorem but suffer their own well-known failure modes.
-
-\paragraph{From discrete to continuous.}
-All three results apply to continuous interpolants of discrete data. The Tietze extension theorem guarantees that any finite set of behavioral observations in a normal space admits continuous extensions, and the impossibilities hold for every such extension (\Cref{thm:tietze}). This does not claim the results hold for the underlying discrete token system directly, but for every continuous model consistent with the observations.
-
-Both the basic and $\varepsilon$-robust proofs are machine-verified in Lean~4 with zero \texttt{sorry} statements, as is the persistent unsafe region theorem. All three conditions---continuity, utility preservation, and connectedness---are individually necessary; we give counterexamples for each.
-
-\paragraph{Contributions.}
-\begin{itemize}[nosep]
-  \item \textbf{Tier~1}: Boundary fixation for continuous utility-preserving defenses (\Cref{thm:main}).
-  \item \textbf{Tier~2}: $\varepsilon$-robust constraint showing the defense cannot uniformly reduce AD far below~$\tau$ on a positive-measure band (\Cref{thm:eps-robust,thm:band-measure}).
-  \item \textbf{Tier~3}: Persistent unsafe region under transversality (\Cref{thm:persistent}).
-  \item A formally verified bridge from discrete data to continuous theory via Tietze extension (\Cref{thm:tietze}).
-  \item Direct discrete impossibility results requiring no topology (\Cref{sec:discrete}).
-  \item Multi-turn, stochastic, capacity parity, and nonlinear pipeline extensions (\Cref{sec:extensions}).
-  \item Representation-independent meta-theorem unifying all paths (\Cref{sec:meta}).
-  \item Counterexamples proving each hypothesis is necessary (\Cref{sec:counterexamples}).
-  \item Supporting theorems: basin structure, fragmentation, convergence, transferability, authority monotonicity, gradient ascent, fine-tuning stability, cost asymmetry (\Cref{sec:landscape,sec:attacks,sec:stability,sec:cost}).
-  \item Theory--experiment correspondence with three LLMs (\Cref{sec:experiments}).
-  \item Lean~4 artifact: 39 files, $\sim$300 theorems, zero \texttt{sorry}, three standard axioms (\Cref{sec:artifact}).
-\end{itemize}
-
-% The rest of the paper follows the user's provided content exactly.
-% Sections 2-19 as provided in the user's message above.
+The novelty is not in the proof techniques---which are elementary---but in the problem formulation: identifying that standard defense design constraints induce a forced fixed-point structure at the safety boundary. All results are machine-verified in Lean~4 with zero \texttt{sorry} statements.
 
 \section{Related Work}
 \label{sec:related}
 
-\paragraph{Adversarial robustness.}
-The existence of adversarial examples in neural networks has been extensively studied (e.g., Christian Szegedy et al., Ian Goodfellow et al.), along with a large body of work on certified robustness via abstract interpretation, SMT-based verification, and randomized smoothing. These approaches characterize the existence of inputs that induce failure, or provide guarantees within bounded perturbation sets.
+\paragraph{Adversarial robustness.} Prior work characterizes the existence of adversarial perturbations or provides certified robustness within bounded regions~\cite{szegedy2013intriguing,goodfellow2014explaining,cohen2019certified,singh2019abstract,katz2017reluplex}. Our result is a structural constraint on the defense mapping itself, independent of perturbation models or training.
 
-Our work departs fundamentally from this paradigm. Rather than analyzing which inputs cause failures for a fixed model, we study what any admissible defense mapping can achieve. Specifically, we prove that for any continuous, utility-preserving defense $D$, there exists an input at which the defense fails to enforce safety. This shifts the focus from existential statements over inputs to universal constraints over defenses, independent of perturbation models, norms, or training procedures.
+\paragraph{Prompt injection.} Attack methods discover individual failures~\cite{zou2023universal,chao2024jailbreaking,mehrotra2024tree,samvelyan2024rainbow}. The Manifold of Failure framework~\cite{bhatt2025manifold} maps their topology. We prove these failures are structurally unavoidable under mild constraints.
 
-\paragraph{Prompt injection and jailbreaking.}
-Recent work has developed increasingly effective methods for eliciting unsafe behavior from language models, including gradient-based attacks, search-based strategies, and quality-diversity approaches such as MAP-Elites. These methods demonstrate that vulnerabilities are widespread and often easy to discover.
+\paragraph{Impossibility results.} No-free-lunch theorems~\cite{wolpert1997no} and robustness--accuracy tradeoffs~\cite{tsipras2018robustness} are distributional. Our results hold pointwise for any continuous defense on a fixed task.
 
-In contrast, our results are not algorithmic but structural. Existing work shows that failures can be found; we prove that under mild and commonly assumed constraints, failures cannot be eliminated by any defense of the given form. This provides a formal explanation for the empirical persistence of prompt injection: vulnerabilities arise not from insufficient search or imperfect training, but from geometric constraints on admissible transformations of the input space.
-
-\paragraph{Impossibility results in machine learning.}
-Classical results such as the No Free Lunch Theorem show that no algorithm performs optimally across all possible data distributions, while robustness--accuracy tradeoffs (e.g., Dimitris Tsipras et al.) demonstrate that improving robustness may degrade standard performance. These results are distributional in nature, describing tradeoffs averaged over tasks or data-generating processes.
-
-Our results are of a different character. We establish pointwise, distribution-free impossibility theorems that hold for any fixed task and any admissible defense mapping. The limitation arises not from competing objectives or unknown distributions, but from the interaction between continuity, utility preservation, and the topology of the input space. As such, our results are orthogonal to, and not implied by, prior tradeoff or no-free-lunch analyses.
-
-\paragraph{Geometric and topological perspectives.}
-Prior work has examined the geometry of decision boundaries and the topology of learned representations, highlighting the importance of structure in understanding model behavior. While our proofs rely on elementary topological arguments, the key novelty lies in identifying that standard design constraints for LLM defenses induce a forced fixed-point structure at the safety boundary. To our knowledge, this connection---linking utility preservation and continuity to unavoidable boundary fixation---has not been previously formalized. Our Tier~3 result further strengthens this perspective by showing that under metric assumptions, unsafe behavior persists over regions of positive measure, not merely at isolated boundary points.
-
-\paragraph{Formal verification of machine learning systems.}
-Formal methods have been used to verify properties of neural networks and learning algorithms, typically providing guarantees for specific architectures under bounded input domains. In contrast, our work establishes impossibility results at the level of abstraction of defense functions, independent of any particular model, architecture, or verification procedure. The use of Lean~4 in our work serves to mechanize these general results, rather than to certify properties of a specific system.
+\paragraph{Formal verification.} Lean and Coq have verified properties of neural networks~\cite{bagnall2019certifying} and optimization~\cite{bolte2024}. To our knowledge, ours is the first verified impossibility for prompt injection defense.
 
 \section{Setup}
 \label{sec:setup}
 
-\begin{definition}[Alignment Deviation Function]
-\label{def:ad}
-Let $X$ be a topological space. An \emph{alignment deviation function} is a continuous map $f\colon X \to \R$. Given a threshold $\tau\in\R$:
-\begin{align}
-  S_\tau &= \{x \in X : f(x) < \tau\}  &&\text{(safe region)} \\
-  U_\tau &= \{x \in X : f(x) > \tau\}  &&\text{(unsafe region)} \\
-  B_\tau &= \{x \in X : f(x) = \tau\}  &&\text{(boundary)}
-\end{align}
-\end{definition}
-
-\begin{definition}[Defense]
-\label{def:defense}
-A \emph{defense} is a continuous map $D\colon X \to X$. It is \emph{utility-preserving} if $D(x) = x$ for all $x \in S_\tau$, and \emph{complete} if $f(D(x)) < \tau$ for all $x\in X$.
+\begin{definition}
+An \emph{alignment deviation function} is a continuous $f\colon X \to \R$. Given threshold $\tau$: $S_\tau = \{f < \tau\}$ (safe), $U_\tau = \{f > \tau\}$ (unsafe), $B_\tau = \{f = \tau\}$ (boundary). A \emph{defense} $D\colon X \to X$ is continuous, \emph{utility-preserving} if $D|_{S_\tau} = \id$, and \emph{complete} if $f(D(x)) < \tau$ for all $x$.
 \end{definition}
 
 \section{Tier~1: Boundary Fixation}
@@ -172,435 +85,266 @@ A \emph{defense} is a continuous map $D\colon X \to X$. It is \emph{utility-pres
 
 \begin{theorem}[Boundary Fixation]
 \label{thm:main}
-Let $X$ be a connected Hausdorff space. Let $f\colon X\to\R$ be continuous with $S_\tau \neq \emptyset$ and $U_\tau \neq \emptyset$. Let $D\colon X \to X$ be continuous with $D|_{S_\tau} = \id$.
-
-Then there exists $z\in X$ with $f(z) = \tau$ and $D(z) = z$. Moreover, every $z \in \cl{S_\tau} \setminus S_\tau$ satisfies $f(z) = \tau$ and $D(z) = z$. This set is nonempty.
+Let $X$ be a connected Hausdorff space, $f$ continuous with $S_\tau, U_\tau \neq \emptyset$, $D$ continuous with $D|_{S_\tau} = \id$. Then $\exists\, z$ with $f(z) = \tau$ and $D(z) = z$. Every $z \in \cl{S_\tau} \setminus S_\tau$ satisfies this; this set is nonempty.
 \end{theorem}
 
 \begin{proof}
-Five steps, each using exactly one hypothesis.
-
-\textbf{Step~1} (Fixed-point set is closed). $\Fix(D) = \{x : D(x) = x\}$ is the preimage of the diagonal $\Delta \subset X \times X$ under $x \mapsto (D(x), x)$. Hausdorff $\Rightarrow$ $\Delta$ closed $\Rightarrow$ $\Fix(D)$ closed.
-
-\textbf{Step~2} (Closure of safe region $\subseteq$ fixed points). $S_\tau \subseteq \Fix(D)$ by utility preservation. $\Fix(D)$ closed $\Rightarrow$ $\cl{S_\tau} \subseteq \Fix(D)$.
-
-\textbf{Step~3} (Safe region is not closed). $S_\tau = f^{-1}((-\infty,\tau))$ is open. If also closed, it would be clopen, hence $\emptyset$ or $X$---contradicting both regions nonempty.
-
-\textbf{Step~4} (Boundary point in closure). $S_\tau$ not closed $\Rightarrow$ $\cl{S_\tau} \supsetneq S_\tau$. Any $z \in \cl{S_\tau} \setminus S_\tau$ satisfies $f(z) \leq \tau$ (closure $\subseteq \{f \leq \tau\}$) and $f(z) \geq \tau$ ($z \notin S_\tau$). So $f(z) = \tau$.
-
-\textbf{Step~5} (Defense fixes it). $z \in \cl{S_\tau} \subseteq \Fix(D)$, so $D(z) = z$ and $f(D(z)) = \tau \not< \tau$.
+(1)~$\Fix(D)$ is closed (Hausdorff $\Rightarrow$ diagonal closed). (2)~$S_\tau \subseteq \Fix(D)$; closed $\Rightarrow$ $\cl{S_\tau} \subseteq \Fix(D)$. (3)~$S_\tau$ is open, not closed (else clopen, contradicting connectedness). (4)~$\cl{S_\tau} \supsetneq S_\tau$; pick $z$ in the difference: $f(z) = \tau$. (5)~$z \in \Fix(D)$.
 \end{proof}
 
 \begin{corollary}
 No continuous utility-preserving defense is complete.
 \end{corollary}
 
-\subsection{Each Hypothesis Is Necessary}
-\label{sec:counterexamples}
+Each hypothesis is necessary: disconnected $X$ allows complete defense; discontinuous $D$ allows complete defense; non-utility-preserving $D$ allows complete defense (counterexamples in \Cref{sec:counterexamples-app}).
+
+\begin{remark}[Approximate utility preservation]
+\label{rem:approx}
+If $D$ satisfies $\dist(D(x), x) \leq \varepsilon$ for all $x \in S_\tau$ instead of strict identity, the fixed-point set $\Fix(D)$ may not contain $S_\tau$. However, the set $\{x : \dist(D(x), x) \leq \varepsilon\}$ is closed and contains $S_\tau$, so its closure-spillover argument still produces points near the boundary where $D$ moves inputs by at most $\varepsilon$. The impossibility degrades gracefully: boundary fixation becomes boundary \emph{near}-fixation with displacement $\leq \varepsilon$. A defense that ``jitters'' safe inputs escapes strict fixation but inherits an $\varepsilon$-approximate version.
+\end{remark}
+
+\section{Tier~2: $\varepsilon$-Robust Constraint}
+\label{sec:eps-robust}
+
+\begin{theorem}[$\varepsilon$-Robust Constraint]
+\label{thm:eps-robust}
+Under \Cref{thm:main}'s hypotheses, if $f$ is $L$-Lipschitz and $D$ is $K$-Lipschitz, the fixed point $z$ satisfies $f(D(x)) \geq \tau - L(K+1)\dist(x,z)$ for all $x$.
+\end{theorem}
+
+\begin{theorem}[Positive-Measure Band]
+\label{thm:band-measure}
+The $\varepsilon$-band $\{\tau - \varepsilon \leq f \leq \tau\}$ has positive measure and contains $\operatorname{ball}(c, \varepsilon/(4L))$ for $c$ with $f(c) = \tau - \varepsilon/2$.
+\end{theorem}
+
+\Cref{thm:eps-robust} constrains the \emph{depth} to which the defense can push near-boundary points below~$\tau$. It does not prove they remain unsafe---the defense may map them to $[\tau - L(K+1)\delta,\, \tau)$.
+
+\section{Tier~3: Persistent Unsafe Region}
+\label{sec:persistent}
+
+\begin{definition}
+The \emph{steep region} $\mathcal{S} = \{x : f(x) > \tau + L(K+1)\dist(x,z)\}$.
+\end{definition}
+
+\begin{theorem}[Persistent Unsafe Region]
+\label{thm:persistent}
+If $\mathcal{S} \neq \emptyset$: (1)~$\mathcal{S}$ is open; (2)~$\mu(\mathcal{S}) > 0$; (3)~$f(D(x)) > \tau$ for all $x \in \mathcal{S}$.
+\end{theorem}
+
+$\mathcal{S}$ is nonempty whenever the boundary slope exceeds $L(K+1)$---the surface rises faster than the defense can pull it down. Verified in Lean as \texttt{transversality\_from\_deriv}.
+
+\section{Discrete-Continuous Bridge and Discrete Path}
+\label{sec:bridge}
+
+\begin{theorem}[Continuous Relaxation]
+\label{thm:tietze}
+Finite observations $g(p) < \tau < g(q)$ in a connected normal space admit continuous extensions for which Tiers~1--3 hold (Tietze/McShane--Whitney). This does not claim the results hold for the discrete token system directly, but for every continuous model consistent with the observations.
+\end{theorem}
+
+Independent of Tietze, we prove discrete results requiring no topology (\Cref{sec:discrete-app}): a discrete IVT on finite ordered sets, discrete defense fixation, and capacity exhaustion via pigeonhole.
+
+\section{Extensions}
+\label{sec:extensions}
+
+\textbf{Multi-turn} (\Cref{thm:multi-turn-app}): boundary fixation recurs at every turn; the attacker accumulates information and can steer toward transversality. \textbf{Stochastic}: if $g(x) = \mathbb{E}[f(D(x))]$ is continuous and utility-preserving in expectation, $g(z) = \tau$ at boundary points. \textbf{Capacity parity}: utility preservation consumes $|S_\tau|$ capacity units, giving the attacker a permanent edge. \textbf{Pipelines}: Lipschitz constants multiply through tool calls; $n$-stage pipeline has effective constant $K^n$, exponentially degrading the defense.
+
+\section{Meta-Theorem}
+\label{sec:meta}
+
+\begin{theorem}[Regularity Implies Spillover]
+\label{thm:meta}
+If $D(x) = x$ for all $x \in S$ and $\Fix(D)$ cannot equal $S$ (bounded regularity), then $\Fix(D) \supsetneq S$ and $\exists\, x \notin S$ with $D(x) = x$.
+\end{theorem}
+
+Each path proves regularity differently (continuous: $S$ not clopen; discrete: IVT + pigeonhole; stochastic: $g-f$ extends to closure). The meta-theorem is representation-independent.
+
+\section{Theory--Experiment Correspondence}
+\label{sec:experiments}
+
+We compare theoretical predictions with empirical findings from behavioral mapping of three LLMs~\cite{bhatt2025manifold} over a 2D space (query indirection $\times$ authority framing). The comparison is summarized in \Cref{tab:correspondence}.
+
+\begin{table}[t]
+\centering\small
+\caption{Theoretical predictions and corresponding empirical observations.}
+\label{tab:correspondence}
+\begin{tabular}{@{}p{2.5cm}p{4cm}p{4.5cm}@{}}
+\toprule
+\textbf{Theorem} & \textbf{Predicts} & \textbf{Observed} \\
+\midrule
+Basin (\ref{thm:basin-app}) & Positive-measure basins & Extended heatmap regions \\[2pt]
+Persistent (\ref{thm:persistent}) & Steep boundary $\to$ unsafe volume & Llama's $.93$ plateau persists \\[2pt]
+Stability (\ref{thm:interior-app}) & Deep points survive perturbation & Vulnerability persists across variants \\[2pt]
+Pipeline (\ref{thm:pipeline-app}) & Deeper $\to$ wider failure band & Tool-using agents harder to defend \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Llama-3-8B} (AD $0.93$): Tier~3 territory---slope exceeds $L(K+1)$. \textbf{GPT-OSS-20B} (AD $0.73$): rugged, many transversal crossings. \textbf{GPT-5-Mini} (peak AD $0.50$): $U_{0.5} = \emptyset$; no tier applies---strategy is to make boundary harmless.
+
+\section{Engineering Prescription}
+\label{sec:engineering}
+
+(1)~Make the boundary shallow: set $\tau$ so boundary behavior is benign (GPT-5-Mini). (2)~Reduce $L$: smoother surfaces raise the Tier~3 threshold. (3)~Reduce dimension: defense cost $= N^d$. (4)~Monitor the boundary: crossings persist under fine-tuning. (5)~Multi-turn context doesn't help. (6)~Randomization fails in expectation. (7)~Break capacity parity via architectural separation.
+
+\section{Limitations}
+\label{sec:limitations}
+
+Tier~1 applies only at the boundary ($f(z) = \tau$). Tier~2 constrains depth, not direction. Tier~3 requires transversality. The Tietze bridge applies to interpolants, not the discrete system itself; positive-measure bands may be empty of valid token sequences (the sharpest open gap). Raising $\tau$ fails for binary safety constraints. See \Cref{sec:limitations-app} for full discussion.
+
+\section{Conclusion}
+
+We establish geometric limits on prompt injection defense via a three-tier impossibility hierarchy, unified by a representation-independent meta-theorem. The impossibility is a consequence of combining utility preservation with bounded regularity---not an artifact of any particular proof technique. The practical prescription: make the boundary shallow, smooth, and low-dimensional. Machine-verified in Lean~4: 39 files, zero \texttt{sorry}.
+
+% ============================================================
+% REFERENCES
+% ============================================================
+
+\bibliographystyle{plain}
+\begin{thebibliography}{99}
+\bibitem{alon2023detecting} G.~Alon, M.~Kamfonas. Detecting language model attacks with perplexity. \emph{arXiv:2308.14132}, 2023.
+\bibitem{bagnall2019certifying} A.~Bagnall, G.~Stewart. Certifying the true error. \emph{AAAI}, 2019.
+\bibitem{bai2022constitutional} Y.~Bai et~al. Constitutional AI. \emph{arXiv:2212.08073}, 2022.
+\bibitem{bhatt2025manifold} M.~Bhatt et~al. Manifold of failure. \emph{arXiv:2602.22291v2}, 2026.
+\bibitem{bolte2024} J.~Bolte et~al. Formal verification of optimization. \emph{Math.\ Prog.}, 2024.
+\bibitem{chao2024jailbreaking} P.~Chao et~al. Jailbreaking LLMs in twenty queries. \emph{arXiv:2310.08419}, 2024.
+\bibitem{cohen2019certified} J.~Cohen et~al. Certified robustness via randomized smoothing. \emph{ICML}, 2019.
+\bibitem{goodfellow2014explaining} I.~Goodfellow et~al. Explaining adversarial examples. \emph{arXiv:1412.6572}, 2014.
+\bibitem{inan2023llama} H.~Inan et~al. Llama Guard. \emph{arXiv:2312.06674}, 2023.
+\bibitem{katz2017reluplex} G.~Katz et~al. Reluplex. \emph{CAV}, 2017.
+\bibitem{mehrotra2024tree} A.~Mehrotra et~al. Tree of attacks. \emph{arXiv:2312.02119}, 2024.
+\bibitem{samvelyan2024rainbow} M.~Samvelyan et~al. Rainbow teaming. \emph{NeurIPS}, 2024.
+\bibitem{singh2019abstract} G.~Singh et~al. Abstract domain for neural networks. \emph{POPL}, 2019.
+\bibitem{szegedy2013intriguing} C.~Szegedy et~al. Intriguing properties. \emph{arXiv:1312.6199}, 2013.
+\bibitem{tsipras2018robustness} D.~Tsipras et~al. Robustness vs accuracy. \emph{arXiv:1805.12152}, 2018.
+\bibitem{wolpert1997no} D.~Wolpert, W.~Macready. No free lunch. \emph{IEEE TEC}, 1(1):67--82, 1997.
+\bibitem{zou2023universal} A.~Zou et~al. Universal adversarial attacks. \emph{arXiv:2307.15043}, 2023.
+\end{thebibliography}
+
+% ============================================================
+% APPENDIX
+% ============================================================
+
+\appendix
+
+\section{Counterexamples}
+\label{sec:counterexamples-app}
 
 \begin{counterexample}[Removing connectedness]
 $X = \{0,1\}$ discrete, $f(0)=0$, $f(1)=1$, $\tau=0.5$. $D(0)=0$, $D(1)=0$: continuous, utility-preserving, complete.
 \end{counterexample}
 
 \begin{counterexample}[Removing continuity]
-$X=[0,1]$, $f(x)=x$, $\tau=0.5$. $D(x)=x$ for $x<0.5$, $D(x)=0$ for $x \geq 0.5$: utility-preserving and complete, but discontinuous at $0.5$.
+$X=[0,1]$, $f(x)=x$, $\tau=0.5$. $D(x)=x$ for $x<0.5$, $D(x)=0$ for $x \geq 0.5$.
 \end{counterexample}
 
 \begin{counterexample}[Removing utility preservation]
-$D(x) = x_0$ for a fixed safe point: continuous and complete, but destroys all inputs.
+$D(x) = x_0$ for a fixed safe point.
 \end{counterexample}
 
-\begin{remark}[The defense trilemma]
-A defense can satisfy at most two of: continuity, utility preservation, completeness.
-\end{remark}
-
-\begin{remark}[Not all boundary points are fixed]
-The theorem captures $\cl{S_\tau} \setminus S_\tau$, not all of $B_\tau$. Boundary points isolated from the safe side may escape. Verified in Lean with $f(x)=x^2$, $\tau=0$.
-\end{remark}
-
-\section{Tier~2: $\varepsilon$-Robust Constraint}
-\label{sec:eps-robust}
-
-Tier~1 fixes boundary points---potentially measure zero. Tier~2 extends the constraint to a positive-measure neighborhood.
-
-\begin{theorem}[$\varepsilon$-Robust Defense Constraint]
-\label{thm:eps-robust}
-Let $X$ be a connected Hausdorff metric space, $f$ be $L$-Lipschitz with $S_\tau, U_\tau \neq \emptyset$, and $D$ be $K$-Lipschitz with $D|_{S_\tau} = \id$.
-
-Then there exists $z \in X$ with $f(z) = \tau$, $D(z) = z$, such that for all $x \in X$ (with strongest constraint near~$z$):
-\begin{equation}
-  f(D(x)) \;\geq\; \tau \;-\; L(K+1)\,\dist(x, z).
-\end{equation}
-\end{theorem}
-
-\begin{proof}
-From \Cref{thm:main}, $z$ exists. Since $D$ is $K$-Lipschitz and $D(z) = z$: $\dist(D(x), x) \leq (K+1)\dist(x,z)$ (triangle inequality). Since $f$ is $L$-Lipschitz: $|f(D(x)) - f(x)| \leq L(K+1)\dist(x,z)$. Extracting the lower bound gives $f(D(x)) \geq f(x) - L(K+1)\dist(x,z) \geq \tau - L(K+1)\dist(x,z)$ (using $f(z) = \tau$ and Lipschitz of $f$).
-\end{proof}
-
-\begin{theorem}[Positive-Measure $\varepsilon$-Band]
-\label{thm:band-measure}
-Under the hypotheses of \Cref{thm:eps-robust}, for every $\varepsilon > 0$ such that $f$ takes values below $\tau - \varepsilon$, the $\varepsilon$-band $\mathcal{B}_\varepsilon = \{x : \tau - \varepsilon \leq f(x) \leq \tau\}$ has positive measure (under any measure positive on nonempty open sets). Specifically, $\operatorname{ball}(c, \varepsilon/(4L)) \subseteq \mathcal{B}_\varepsilon$ for any $c$ with $f(c) = \tau - \varepsilon/2$.
-\end{theorem}
-
-\begin{remark}[What Tier~2 does and does not say]
-\Cref{thm:eps-robust} constrains the \emph{depth} to which the defense can push near-boundary points below~$\tau$. It does \emph{not} prove these points remain unsafe---the defense may map them to values in $[\tau - L(K+1)\delta,\; \tau)$, which is below threshold. The bound is tight: a defense mapping every point in a $\delta$-ball to $f$-value $\tau - L(K+1)\delta$ would saturate it.
-\end{remark}
-
-\section{Tier~3: Persistent Unsafe Region}
-\label{sec:persistent}
-
-Tier~2 constrains depth but permits the defense to nudge points below $\tau$. Under a transversality condition, Tier~3 proves the defense \emph{cannot make certain points safe at all}.
-
-\begin{definition}[Steep region]
-\label{def:steep}
-Given a fixed boundary point $z$ (from \Cref{thm:main}), define
-\[
-  \mathcal{S} = \{x \in X : f(x) > \tau + L(K+1)\,\dist(x, z)\}.
-\]
-This is the set of points where the alignment deviation exceeds~$\tau$ by more than the defense's Lipschitz bound can compensate.
-\end{definition}
-
-\begin{theorem}[Persistent Unsafe Region]
-\label{thm:persistent}
-Under the hypotheses of \Cref{thm:eps-robust}, if $\mathcal{S}$ is nonempty, then: (1)~$\mathcal{S}$ is open; (2)~$\mathcal{S}$ has positive measure; (3)~$f(D(x)) > \tau$ for all $x \in \mathcal{S}$. In particular, $\mu(\{x : f(D(x)) > \tau\}) > 0$.
-\end{theorem}
-
-\begin{proof}
-\textbf{(1)} $x \mapsto f(x) - L(K+1)\dist(x,z)$ is continuous; $\mathcal{S}$ is its superlevel set at~$\tau$, hence open. \textbf{(2)} Open and nonempty implies positive measure. \textbf{(3)} For $x \in \mathcal{S}$: $f(D(x)) \geq f(x) - L(K+1)\dist(x,z) > \tau$.
-\end{proof}
-
-\begin{remark}[When is $\mathcal{S}$ nonempty?]
-\label{rem:transversality}
-$\mathcal{S} \neq \emptyset$ whenever the alignment surface has directional slope exceeding $L(K+1)$ at $z$. In a normed space, if $f$ has directional derivative $c > L(K+1)$ along unit vector~$v$ at~$z$, then $z + tv \in \mathcal{S}$ for small $t > 0$ (verified in Lean as \texttt{transversality\_from\_deriv}). Informally: if the surface rises faster than the defense can pull it down, unsafe behavior persists over volume.
-\end{remark}
-
-\begin{remark}[The defense's fundamental dilemma]
-Tier~1: the defense \emph{must} fix boundary points. Tier~2: it cannot push nearby points \emph{deep} into safety. Tier~3: if the landscape is steep, it cannot push them into safety \emph{at all}. Increasing $K$ raises the transversality threshold but widens the Tier~2 constraint band. The defense cannot escape the geometry.
-\end{remark}
-
-\section{From Discrete Data to Continuous Theory}
-\label{sec:bridge}
-
-\begin{theorem}[Continuous Relaxation]
-\label{thm:tietze}
-Let $X$ be a connected, normal, Hausdorff space with finite observations $g(p) < \tau < g(q)$. Then $\exists$ continuous $f$ agreeing with all observations for which \Cref{thm:main,thm:eps-robust} hold. Lipschitz extensions enable \Cref{thm:persistent}.
-\end{theorem}
-
-\begin{proof}
-Finite subsets of $T_1$ spaces are closed. By the Tietze extension theorem, $g$ extends to a continuous $f$. Since $f(p) < \tau < f(q)$, \Cref{thm:main} applies. McShane--Whitney extensions enable Tiers~2--3.
-\end{proof}
-
-\begin{remark}
-The interpolant is not unique. All three impossibilities hold for \emph{every} continuous extension consistent with the data. This does not claim the results hold for the underlying discrete token system directly, but for every continuous model consistent with the observations.
-\end{remark}
-
-\section{Direct Discrete Impossibility}
-\label{sec:discrete}
-
-The Tietze bridge connects discrete data to continuous theory, but a natural objection remains: perhaps the impossibility is an artifact of the continuous relaxation. To address this, we prove results directly on finite sets with no topology. Verified in Lean as \texttt{MoF\_12\_Discrete}.
+\section{Discrete Impossibility}
+\label{sec:discrete-app}
 
 \begin{theorem}[Discrete IVT]
-\label{thm:disc-ivt}
-Let $f\colon \{0,\ldots,n\!+\!1\} \to \R$ with $f(0) < \tau$ and $f(n\!+\!1) \geq \tau$. Then $\exists\, i$ with $f(i) < \tau$ and $f(i\!+\!1) \geq \tau$.
+$f\colon \{0,\ldots,n+1\} \to \R$ with $f(0) < \tau \leq f(n+1)$: $\exists\, i$ with $f(i) < \tau$ and $f(i+1) \geq \tau$.
 \end{theorem}
 
 \begin{theorem}[Discrete Defense Fixation]
-\label{thm:disc-defense}
-If $D$ fixes safe vertices, the crossing from \Cref{thm:disc-ivt} has its safe endpoint fixed: $D(i) = i$.
+If $D$ fixes safe vertices, the crossing has its safe endpoint fixed.
 \end{theorem}
 
 \begin{theorem}[Capacity Exhaustion]
-\label{thm:pigeonhole}
-If $m$ adversarial configurations exist and the defense realizes $< m$ distinct behaviors, at least two receive the same treatment.
+$m$ configs, $< m$ defense behaviors $\Rightarrow$ pigeonhole collision.
 \end{theorem}
 
-\begin{theorem}[Exponential Attack Surface]
-\label{thm:budget}
-$2^d \geq d + 1$. For any fixed budget~$B$, $\exists\, d_0$ with $2^d > B$ for all $d \geq d_0$.
-\end{theorem}
-
-\section{Extensions: Multi-Turn, Stochastic, and Capacity Parity}
-\label{sec:extensions}
-
-\subsection{Multi-Turn Impossibility}
+\section{Multi-Turn Details}
+\label{sec:multi-turn-app}
 
 \begin{theorem}[Multi-Turn Impossibility]
-\label{thm:multi-turn}
-Let $\{f_t, D_t\}_{t=1}^T$ be a sequence of alignment functions and defenses where each $f_t$ is continuous with safe and unsafe regions, and each $D_t$ is continuous and utility-preserving. Then for \emph{every} turn~$t$, $\exists\, z_t$ with $f_t(z_t) = \tau$ and $D_t(z_t) = z_t$.
+\label{thm:multi-turn-app}
+$\{f_t, D_t\}_{t=1}^T$ with each $f_t$ continuous, mixed regions, $D_t$ utility-preserving: $\forall\, t$, $\exists\, z_t$ with $f_t(z_t) = \tau$, $D_t(z_t) = z_t$.
 \end{theorem}
 
-\begin{proof}
-Apply \Cref{thm:main} to $(f_t, D_t)$ at each turn.
-\end{proof}
+The attacker's best score is monotone non-decreasing. It can steer toward transversality via binary search on its influence parameter.
 
-The multi-turn setting is worse than ``the same problem repeated'': the attacker accumulates information, its best score is monotone non-decreasing, and it can steer toward transversality via binary search on its influence parameter (verified in Lean as \texttt{transversality\_reachable}). The only escape is making $U_\tau = \emptyset$ at some turn, which requires changing $f_t$ itself.
-
-\subsection{Stochastic Defense Impossibility}
-
-\begin{theorem}[Stochastic Defense Impossibility]
-\label{thm:stochastic}
-Let $g(x) = \mathbb{E}_{y \sim D(x)}[f(y)]$. If $g$ is continuous and $g = f$ on $S_\tau$, then $\exists\, z$ with $f(z) = \tau$ and $g(z) = \tau$.
-\end{theorem}
-
-\begin{proof}
-$h = g - f$ is continuous and vanishes on $S_\tau$. Since $\{h = 0\}$ is closed, $h$ vanishes on $\cl{S_\tau}$. Any $z \in \cl{S_\tau} \setminus S_\tau$ has $g(z) = f(z) = \tau$.
-\end{proof}
-
-\subsection{Capacity Parity}
-
-\begin{theorem}[Capacity Parity Disadvantage]
-\label{thm:capacity}
-Under capacity parity ($C = N$), the defense's effective free capacity is $N - |S_\tau| < N$, giving the attacker a permanent edge.
-\end{theorem}
-
-\subsection{Nonlinear Agent Pipelines}
-
-\begin{theorem}[Pipeline Lipschitz Degradation]
-\label{thm:pipeline}
-$n$ stages with constants $K_1, \ldots, K_n$ compose to $(K_1 \cdots K_n)$-Lipschitz. For $K \geq 2$: effective constant $K^n$, exponential in depth.
-\end{theorem}
-
-\begin{theorem}[Pipeline Impossibility]
-\label{thm:pipeline-impossible}
-If the composed pipeline $P$ is continuous and preserves safe inputs, $P$ has boundary fixed points. The failure band scales as $L(K^n + 1)\delta$.
-\end{theorem}
-
-\section{The Vulnerability Landscape}
-\label{sec:landscape}
+\section{Vulnerability Landscape}
+\label{sec:landscape-app}
 
 \begin{theorem}[Basin Structure]
-\label{thm:basin}
-If $f$ is continuous and $f(p)>\tau$, then $U_\tau$ is open with positive measure (under any measure positive on nonempty open sets).
+\label{thm:basin-app}
+$U_\tau$ is open with positive measure (under any measure positive on nonempty open sets).
 \end{theorem}
 
-\begin{theorem}[Basin Fragment Minimum Size]
-\label{thm:fragment}
-$L$-Lipschitz $f$ with $f(p) > \tau$: component diameter $\geq 2(f(p) - \tau)/L$.
+\begin{theorem}[Fragment Size]
+$L$-Lipschitz $f$, $f(p) > \tau$: component diameter $\geq 2(f(p)-\tau)/L$.
 \end{theorem}
-
-\section{Attack Properties}
-\label{sec:attacks}
 
 \begin{theorem}[Perturbation Robustness]
-\label{thm:lipschitz}
-$\operatorname{ball}(p, (f(p)-\tau)/L) \subseteq U_\tau$; radius monotone in $f(p)$.
+$\operatorname{ball}(p, (f(p)-\tau)/L) \subseteq U_\tau$.
 \end{theorem}
 
-\begin{theorem}[Iterative Convergence]
-\label{thm:convergence}
-Monotone-improvement operators on $[0,1]$ converge in $\leq \lfloor 1/\delta \rfloor$ steps.
+\begin{theorem}[Convergence]
+Monotone operators on $[0,1]$ converge in $\leq \lfloor 1/\delta \rfloor$ steps.
 \end{theorem}
 
 \begin{theorem}[Transferability]
-\label{thm:transfer}
-$\|f-g\|_\infty \leq \delta \Rightarrow \{f > \tau+\delta\} \subseteq \{g > \tau\}$. Zero-cost transfer.
+$\|f-g\|_\infty \leq \delta \Rightarrow \{f > \tau+\delta\} \subseteq \{g > \tau\}$.
 \end{theorem}
 
 \begin{theorem}[Authority Monotonicity]
-\label{thm:authority}
-$f(y,\cdot)$ monotone in authority $\Rightarrow$ vulnerability upward-closed; critical threshold exists by IVT when continuous and crosses~$\tau$. If also monotone in indirection, threshold curve is non-increasing.
+Monotone in authority $\Rightarrow$ vulnerability upward-closed; threshold curve non-increasing if also monotone in indirection.
 \end{theorem}
 
 \begin{theorem}[Gradient Ascent]
-\label{thm:gradient}
-Nonzero Fr\'{e}chet derivative $\Rightarrow$ $\exists\, v, \varepsilon > 0$: $f(x + \varepsilon v) > f(x)$.
+Nonzero Fr\'{e}chet derivative $\Rightarrow$ $\exists$ ascent direction.
 \end{theorem}
 
 \section{Stability Under Fine-Tuning}
-\label{sec:stability}
+\label{sec:stability-app}
 
 \begin{theorem}[Interior Stability]
-\label{thm:interior-stable}
-$\|f-g\|_\infty \leq \varepsilon$: deep basin and safe points preserve classification. Only $|f(x)-\tau| \leq \varepsilon$ is uncertain.
+\label{thm:interior-app}
+$\|f-g\|_\infty \leq \varepsilon$: deep basin/safe points preserve classification.
 \end{theorem}
 
 \begin{theorem}[Crossing Preservation]
-\label{thm:crossing}
-Transversal crossings persist under $\varepsilon$-perturbation.
+Transversal crossings persist under perturbation.
 \end{theorem}
 
 \begin{theorem}[Patching Is Nonlocal]
-\label{thm:nonlocal}
-Eliminating a vulnerability at one point necessarily changes values elsewhere. (Explicit Lean construction.)
+Eliminating a vulnerability at one point changes values elsewhere. (Lean construction.)
 \end{theorem}
 
 \section{Cost Asymmetry}
-\label{sec:cost}
 
-\begin{theorem}[Grid-Based Cost Asymmetry]
-\label{thm:cost}
-Grid defense: $N^d$ cost (exponential). Attack: $\leq 1/\delta$ (dimension-free). Ratio $\to \infty$.
+\begin{theorem}[Grid-Based Cost]
+Grid defense: $N^d$ (exponential). Attack: $\leq 1/\delta$ (dimension-free).
 \end{theorem}
 
-At $d=2$, $N=25$, $\delta=0.01$: ratio $= 6.25$. At $d=10$: $\sim 10^{12}$. Verified by \texttt{norm\_num}.
+\section{Pipeline Details}
+\label{sec:pipeline-app}
 
-\section{Experimental Validation}
-\label{sec:experiments}
-
-We validate against the Manifold of Failure framework~\cite{bhatt2025manifold} on three LLMs over a 2D behavioral space.
-
-\begin{table}[t]
-\centering\small
-\caption{Falsifiable predictions confirmed by empirical data.}
-\label{tab:correspondence}
-\begin{tabular}{@{}p{2.8cm}p{4.2cm}p{4.5cm}@{}}
-\toprule
-\textbf{Theorem} & \textbf{Predicts} & \textbf{Confirmed by} \\
-\midrule
-Basin (\ref{thm:basin}) & Positive-measure basins & Extended heatmap regions \\[2pt]
-Fragment (\ref{thm:fragment}) & Smooth $\to$ large; rough $\to$ mosaic & Llama: mesa; GPT-OSS: mosaic \\[2pt]
-Convergence (\ref{thm:convergence}) & Monotone attack convergence & Curves plateau \\[2pt]
-Transfer (\ref{thm:transfer}) & Similar surfaces $\to$ shared basins & $.93 \to .73 \to .47$ spectrum \\[2pt]
-Authority (\ref{thm:authority}) & Horizontal banding & Bands at $a_2 \approx .3, .7$ \\[2pt]
-Persistent (\ref{thm:persistent}) & Steep boundary $\to$ unsafe volume & Llama's $.93$ plateau persists \\[2pt]
-Stability (\ref{thm:interior-stable}) & Deep points survive fine-tuning & Vulnerability persists across variants \\[2pt]
-Cost (\ref{thm:cost}) & $d\!=\!2$ tractable; high-$d$ not & 15K queries fill 63\% at $d\!=\!2$ \\[2pt]
-Pipeline (\ref{thm:pipeline}) & Deeper $\to$ wider failure band & Tool-using agents harder to defend \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\paragraph{Llama-3-8B} (AD $0.93$, basin rate $93.9\%$): Tier~3 territory---slope far exceeds $L(K+1)$.
-
-\paragraph{GPT-OSS-20B} (AD $0.73$, basin rate $64.3\%$): rugged landscape, many transversal crossings.
-
-\paragraph{GPT-5-Mini} (peak AD $0.50$, basin rate $0\%$): $U_{0.5} = \emptyset$. No tier applies. Strategy: make boundary harmless.
-
-\section{The Engineering Prescription}
-\label{sec:engineering}
-
-The impossibility results do not say defense is futile---they say \emph{perfect} defense is impossible under the stated constraints.
-
-\paragraph{1. Make the boundary shallow.} Set $\tau$ so boundary behavior is benign (GPT-5-Mini: $\AD = 0.50$).
-
-\paragraph{2. Reduce the Lipschitz constant.} Smoother $\Rightarrow$ harder to steer into Tier~3.
-
-\paragraph{3. Reduce dimension.} Defense cost $= N^d$; constrain the interface.
-
-\paragraph{4. Monitor, don't eliminate.} Crossings persist (\Cref{thm:crossing}); detect approach to boundary.
-
-\paragraph{5. Abandon stateful security illusions.} Multi-turn doesn't help (\Cref{thm:multi-turn}).
-
-\paragraph{6. Don't pay the stochastic tax.} Randomization fails in expectation (\Cref{thm:stochastic}).
-
-\paragraph{7. Break capacity parity.} Separate defense from utility pipeline (\Cref{thm:capacity}).
-
-\section{Why the Impossibility Is Inescapable}
-\label{sec:meta}
-
-\begin{theorem}[Regularity Implies Spillover]
-\label{thm:meta}
-Let $D\colon X \to X$ satisfy $D(x) = x$ for all $x \in S$ (utility preservation). If $\Fix(D)$ cannot equal $S$ exactly (bounded regularity), then $\Fix(D) \supsetneq S$.
+\begin{theorem}[Pipeline Degradation]
+\label{thm:pipeline-app}
+$n$ stages compose to $(K_1 \cdots K_n)$-Lipschitz. Failure band scales as $L(K^n+1)\delta$.
 \end{theorem}
 
-\begin{corollary}
-$\exists\, x \notin S$ with $D(x) = x$.
-\end{corollary}
+\section{Lean Artifact}
+\label{sec:artifact-app}
 
-The hard work is proving regularity holds:
+Verified in Lean~4.28.0 + Mathlib~v4.28.0. 39 files: 10 core (MoF\_01--10), 10 cost, 10 advanced, MoF\_ContinuousRelaxation, MoF\_11\_EpsilonRobust, MoF\_12\_Discrete, MoF\_13\_MultiTurn, MoF\_14\_MetaTheorem, MoF\_15\_NonlinearAgents, 3 capstone. Three axioms: \texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}. Zero additional.
 
-\begin{center}\small
-\begin{tabular}{@{}lp{7.5cm}@{}}
-\toprule
-\textbf{Path} & \textbf{Why $\Fix(D) \supsetneq S$} \\
-\midrule
-Continuous & $\Fix(D)$ closed, $S$ open and not closed (connected) \\[2pt]
-Lipschitz & + bounds constrain displacement near boundary \\[2pt]
-Transversal & + steep slope forces $f(D(x)) > \tau$ on positive-measure set \\[2pt]
-Discrete & IVT on finite set; utility preservation fixes safe endpoint \\[2pt]
-Stochastic & $g - f$ vanishes on $S$, extends to $\cl{S}$ \\[2pt]
-Multi-turn & Regularity at each turn independently \\[2pt]
-Capacity & Finite capacity $<$ attack surface $\Rightarrow$ pigeonhole \\
-\bottomrule
-\end{tabular}
-\end{center}
+\section{Extended Limitations}
+\label{sec:limitations-app}
 
-For $\Fix(D) = S$, $S$ would need to be clopen. In a connected space with $S \neq \emptyset, X$: impossible. This is the geometric lock.
+\paragraph{Jitter defense.} $D(x) \approx x$ breaks strict fixation but inherits $\varepsilon$-approximate version (\Cref{rem:approx}).
 
-\section{The Lean Artifact}
-\label{sec:artifact}
+\paragraph{Binary exploits.} Theorem applies to smooth behavioral landscape, not discrete exploit chains.
 
-Verified in Lean~4.28.0 + Mathlib~v4.28.0. 39 files:
-\begin{itemize}[nosep]
-  \item 10 core (MoF\_01--10), 10 cost (Cost\_01--10), 10 advanced (Adv\_01--10)
-  \item MoF\_ContinuousRelaxation, MoF\_11\_EpsilonRobust, MoF\_12\_Discrete
-  \item MoF\_13\_MultiTurn, MoF\_14\_MetaTheorem, MoF\_15\_NonlinearAgents
-  \item 3 capstone (MasterTheorem, Euclidean, Verification)
-\end{itemize}
+\paragraph{Measure gap.} Positive-measure bands may be empty of valid tokens. Sharpest open gap.
 
-Three axioms: \texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}. Zero additional.
+\paragraph{Non-Hausdorff agents.} Geometric lock needs connectedness, not Hausdorff; discrete path needs no topology.
 
-\section{Limitations}
-\label{sec:limitations}
+\paragraph{Monitoring blind spot.} Shallow boundary may allow tunneling into deep unsafe basins.
 
-\subsection{Scope Boundaries}
-
-\paragraph{Tier~1} is at the boundary ($f(z) = \tau$). \paragraph{Tier~2} constrains depth, not direction. \paragraph{Tier~3} requires transversality ($c > L(K+1)$). \paragraph{Cost asymmetry} assumes grid enumeration.
-
-\subsection{Adversarial Challenges}
-
-\paragraph{Jitter defense.} $D(x) \neq x$ for safe inputs breaks the lock, but trades boundary fixation for universal input modification with its own classification boundary.
-
-\paragraph{Binary exploits.} Discrete logical state changes (JNDI, buffer overflow) aren't smooth surfaces. Theorem applies to behavioral landscape, not binary exploit chains.
-
-\paragraph{Measure gap.} Positive-measure bands in continuous relaxation may be empty of valid token sequences. Sharpest gap; formal bridge to discrete token density remains open.
-
-\paragraph{Non-Hausdorff agents.} Hausdorff used only for $\Fix(D)$ closed. Geometric lock needs only connectedness; discrete path needs no topology. Projection onto Hausdorff behavioral space may suffice.
-
-\paragraph{Monitoring blind spot.} Raising $\tau$ may allow tunneling through benign boundary into deep unsafe basins beyond Lipschitz-based estimates.
-
-\paragraph{Binary safety constraints.} ``Raise $\tau$'' fails when safe$\to$unsafe is a cliff. Discontinuous mechanisms required.
-
-\section{Conclusion}
-\label{sec:conclusion}
-
-We establish the geometric limits of LLM defense by proving a hierarchy of impossibility theorems---from boundary fixation to persistent unsafe regions---under the constraints of continuity and utility preservation. A representation-independent meta-theorem (\Cref{thm:meta}) reveals the common structure: every path forces $\Fix(D) \supsetneq S$.
-
-Supporting theorems show vulnerabilities come in basins, attacks converge and transfer, vulnerabilities survive fine-tuning, and defense cost grows exponentially. Each result is validated against three frontier LLMs.
-
-The practical prescription: make the boundary shallow, smooth, and low-dimensional. GPT-5-Mini's ceiling at $\AD = 0.50$ shows this working.
-
-The ``Manifold of Failure'' exists---but we can ensure it's empty of actual harm. Our results, machine-verified in Lean~4 (39 files, zero \texttt{sorry}), define the ``Defense Trilemma'' and provide a formal foundation for engineering safety through boundary-depth management rather than absolute containment.
-
-\bibliographystyle{plain}
-\begin{thebibliography}{99}
-
-\bibitem{alon2023detecting} G.~Alon and M.~Kamfonas. Detecting language model attacks with perplexity. \emph{arXiv:2308.14132}, 2023.
-
-\bibitem{bagnall2019certifying} A.~Bagnall and G.~Stewart. Certifying the true error: ML in {Coq} with verified generalization. \emph{AAAI}, 2019.
-
-\bibitem{bai2022constitutional} Y.~Bai et~al. Constitutional {AI}: Harmlessness from {AI} feedback. \emph{arXiv:2212.08073}, 2022.
-
-\bibitem{bhatt2025manifold} M.~Bhatt et~al. Manifold of failure: Behavioral attraction basins in language models. \emph{arXiv:2602.22291v2}, 2026.
-
-\bibitem{bolte2024} J.~Bolte et~al. Formal verification of optimization algorithms. \emph{Math.\ Programming}, 2024.
-
-\bibitem{chao2024jailbreaking} P.~Chao et~al. Jailbreaking black box LLMs in twenty queries. \emph{arXiv:2310.08419}, 2024.
-
-\bibitem{cohen2019certified} J.~Cohen, E.~Rosenfeld, J.~Z. Kolter. Certified adversarial robustness via randomized smoothing. \emph{ICML}, 2019.
-
-\bibitem{goodfellow2014explaining} I.~J. Goodfellow, J.~Shlens, C.~Szegedy. Explaining and harnessing adversarial examples. \emph{arXiv:1412.6572}, 2014.
-
-\bibitem{inan2023llama} H.~Inan et~al. {Llama Guard}: {LLM}-based input-output safeguard. \emph{arXiv:2312.06674}, 2023.
-
-\bibitem{katz2017reluplex} G.~Katz et~al. Reluplex: Efficient {SMT} for verifying deep neural networks. \emph{CAV}, 2017.
-
-\bibitem{mehrotra2024tree} A.~Mehrotra et~al. Tree of attacks: Jailbreaking black-box {LLMs} automatically. \emph{arXiv:2312.02119}, 2024.
-
-\bibitem{mouret2015illuminating} J.-B. Mouret and J.~Clune. Illuminating search spaces by mapping elites. \emph{arXiv:1504.04909}, 2015.
-
-\bibitem{samvelyan2024rainbow} M.~Samvelyan et~al. Rainbow teaming: Open-ended generation of diverse adversarial prompts. \emph{NeurIPS}, 37, 2024.
-
-\bibitem{singh2019abstract} G.~Singh et~al. An abstract domain for certifying neural networks. \emph{POPL}, 2019.
-
-\bibitem{szegedy2013intriguing} C.~Szegedy et~al. Intriguing properties of neural networks. \emph{arXiv:1312.6199}, 2013.
-
-\bibitem{tsipras2018robustness} D.~Tsipras et~al. Robustness may be at odds with accuracy. \emph{arXiv:1805.12152}, 2018.
-
-\bibitem{wolpert1997no} D.~H. Wolpert and W.~G. Macready. No free lunch theorems for optimization. \emph{IEEE Trans.\ Evol.\ Comput.}, 1(1):67--82, 1997.
-
-\bibitem{zou2023universal} A.~Zou et~al. Universal and transferable adversarial attacks on aligned language models. \emph{arXiv:2307.15043}, 2023.
-
-\end{thebibliography}
+\paragraph{Binary safety constraints.} ``Raise $\tau$'' fails for cliff transitions.
 
 \end{document}
