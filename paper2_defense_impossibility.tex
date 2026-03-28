@@ -904,22 +904,65 @@ theoretical vs.\ ${\sim}4$ empirical.
 \section{The Engineering Prescription}
 \label{sec:engineering}
 
-\paragraph{Make the boundary shallow.}
-Set $\tau$ so that boundary-level behavior is benign (GPT-5-Mini:
-$\AD = 0.50$).
+The impossibility results do not say that defense is futile---they say
+that \emph{perfect} defense is impossible under the stated constraints.
+The gap between impossibility and practice is where engineering lives.
+The following prescriptions are ordered from most to least actionable.
 
-\paragraph{Reduce the Lipschitz constant.}
-Smaller~$L$ makes the surface predictable and raises the transversality
-threshold for Tier~3.
+\paragraph{1. Make the boundary shallow.}
+Set $\tau$ so that boundary-level behavior is benign. If $f(z) = \tau$
+corresponds to a polite refusal rather than harmful compliance, the
+impossibility is mathematically true but practically harmless.
+GPT-5-Mini exemplifies this: its ceiling at $\AD = 0.50$ means the
+``Manifold of Failure'' exists but contains no actual harm.
 
-\paragraph{Reduce the effective dimension.}
-Defense cost grows as $N^d$; constraining the prompt interface
-reduces~$d$.
+\paragraph{2. Reduce the Lipschitz constant.}
+Smaller~$L$ makes the alignment surface smoother and more predictable.
+It also raises the transversality threshold $L(K+1)$ for Tier~3: a
+smoother surface is harder for the attacker to steer into persistent
+unsafe territory. The tradeoff is that smoother surfaces spread
+vulnerabilities over wider regions, but those regions are more easily
+monitored.
 
-\paragraph{Monitor the boundary.}
+\paragraph{3. Reduce the effective dimension.}
+Defense cost grows as $N^d$. Constraining the prompt
+interface---standardized formats, restricted API parameters, bounded
+context lengths---reduces~$d$, making the behavioral space tractable.
+
+\paragraph{4. Monitor, don't eliminate, the boundary.}
 \Cref{thm:crossing} shows transversal crossings persist under
-fine-tuning. Rather than eliminate them, monitor approach to the
-boundary.
+fine-tuning, and \Cref{thm:multi-turn} shows they recur every turn.
+Rather than attempting the impossible (eliminating boundary points),
+deploy runtime monitoring that detects approach to the boundary. The
+Lipschitz bound (\Cref{thm:lipschitz}) gives a computable estimate of
+distance to the boundary from any observed AD value.
+
+\paragraph{5. Abandon stateful security illusions.}
+\Cref{thm:multi-turn} proves that accumulating context across turns
+does not eliminate boundary fixation---the impossibility recurs fresh
+at every turn. Defenses that rely on ``learning'' from conversation
+history to progressively close vulnerabilities are fighting topology,
+not winning. Each turn is a new instance of the same problem.
+
+\paragraph{6. Do not pay the stochastic tax.}
+\Cref{thm:stochastic} proves that randomized defenses---stochastic
+routing, temperature-based sampling, random prompt perturbation---fail
+in expectation. The expected alignment deviation after a stochastic
+defense inherits the same boundary fixation as a deterministic one.
+Compute spent on randomization is compute wasted, at least for the
+purpose of eliminating boundary points.
+
+\paragraph{7. Break capacity parity with architectural separation.}
+\Cref{thm:capacity} proves that under equal resources, the defense
+loses capacity to utility preservation while the attacker retains full
+freedom. The implication: a defense that shares the same architecture
+and parameter budget as the model it protects starts at a structural
+disadvantage. To break this asymmetry, separate the defense from the
+utility pipeline entirely---for example, by using a dedicated
+lightweight classifier that does not need to preserve utility (it only
+flags), paired with a separate response generator that handles safe
+inputs. This sacrifices the ``single continuous wrapper'' model but
+sidesteps the capacity tax.
 
 
 % ============================================================
