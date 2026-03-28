@@ -1094,6 +1094,11 @@ Key Mathlib lemmas used:
 \section{Limitations}
 \label{sec:limitations}
 
+We organize limitations into two categories: inherent scope boundaries
+of the theorems, and adversarial challenges to the assumptions.
+
+\subsection{Scope Boundaries}
+
 \paragraph{Tier~1 is at the boundary.}
 Fixed points satisfy $f(z) = \tau$ exactly. If $\tau$-level behavior
 is benign, the theorem is true but harmless.
@@ -1107,17 +1112,62 @@ The persistent unsafe region exists only where the alignment surface
 is steep ($c > L(K+1)$). Flat or gently sloping boundaries escape
 Tier~3 (though not Tiers~1--2).
 
-\paragraph{The Tietze bridge applies to interpolants.}
-The impossibilities hold for every continuous extension of discrete
-data, not for the underlying discrete system itself.
-
 \paragraph{Grid-based cost asymmetry.}
 \Cref{thm:cost} assumes exhaustive grid enumeration. Learning-based
 defenses that generalize across the space may sidestep the exponential
 bound.
 
-\paragraph{Single-turn only.}
-The manifold may shift across conversation turns.
+\subsection{Adversarial Challenges to Assumptions}
+
+\paragraph{The jitter defense (relaxing utility preservation).}
+The proof requires $D(x) = x$ for safe inputs. A defense that maps
+safe inputs to semantically equivalent but syntactically different
+outputs ($D(x) \neq x$ but $D(x) \approx x$) breaks this assumption,
+and with it the geometric lock: $\Fix(D)$ no longer contains $S_\tau$.
+This is a genuine escape from the theorem. The cost is practical:
+jittering all inputs introduces latency, semantic drift, formatting
+loss, and the defense must now distinguish safe from unsafe
+\emph{before} deciding whether to jitter---which reintroduces a
+classification boundary subject to its own version of the impossibility.
+We do not claim this escape is impractical, only that it trades one
+problem (boundary fixation) for another (universal input modification).
+
+\paragraph{Binary exploits vs.\ continuous surfaces.}
+The alignment deviation function $f$ is modeled as continuous, but
+some vulnerabilities---JNDI injection, buffer overflows, prompt
+injection via exact token sequences---are discrete logical state
+changes, not smooth surfaces. A continuous defense might ``smooth''
+the input enough to break a brittle exploit without pushing $\AD$
+below~$\tau$. Our theorem applies to the smooth behavioral landscape
+(tone, compliance, authority response) rather than to binary exploit
+chains. Discontinuous defenses (blocklists, exact-match filters)
+escape the theorem entirely and may be appropriate for structural
+vulnerabilities.
+
+\paragraph{The measure gap in token space.}
+Tiers~2 and~3 establish positive-measure regions in the continuous
+relaxation. The Tietze bridge guarantees a continuous extension exists,
+but does \emph{not} guarantee that the positive-measure band contains
+valid discrete token sequences. The ``Manifold of Failure'' could
+have volume in the continuous space while being functionally empty
+in the actual token vocabulary. This is the sharpest gap between
+theory and practice. We note that empirical evidence
+from~\cite{bhatt2025manifold} shows the continuous surface predicts
+discrete behavior well ($R^2 > 0.85$ for GP fits), but a formal
+bridge from continuous volume to discrete token density remains open.
+
+\paragraph{Benign boundary fails for binary safety constraints.}
+The engineering prescription ``raise $\tau$'' assumes that boundary-level
+behavior admits a spectrum of severity. For behavioral alignment
+deviation (tone, refusal strength), this holds: $\AD = 0.50$ is a
+polite refusal, not a harmful completion. But for structural
+vulnerabilities where the boundary is a hard binary constraint
+(``executes arbitrary code'' vs.\ ``does not''), there is no
+benign boundary. Raising $\tau$ does not help when the transition
+from safe to unsafe is a cliff, not a slope. For such cases, the
+theory correctly predicts that continuous defenses are inadequate---
+discontinuous mechanisms (sandboxing, capability restrictions,
+architectural isolation) are required.
 
 
 % ============================================================
