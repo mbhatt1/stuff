@@ -82,12 +82,13 @@ data, or optimization procedure. The Tietze extension theorem ensures
 that any finite set of behavioral observations admits continuous
 extensions for which all three impossibilities hold.
 
-We also prove a parallel set of discrete impossibility results---boundary
-crossings, defense fixation, and capacity exhaustion---that require no
-topology or continuous relaxation, addressing the objection that real
-prompts are discrete tokens.
+We also prove a parallel set of discrete impossibility results that
+require no topology, and extend the theory to multi-turn interactions
+(the impossibility recurs at every turn), stochastic defenses
+(randomization does not help), and capacity parity (utility preservation
+taxes the defense even under equal resources).
 
-The paper defines the theoretical speed limit for AI safety. It proves we can't build a `Perfect Shield' in a continuous space. However, by using multi-layered, discontinuous defenses and ensuring our boundary behavior is benign, we can operate safely within those limits. The `Manifold of Failure' exists, but we can ensure it's empty of actual harm. The full theory is machine-verified in Lean~4 with Mathlib (36~files,
+The paper defines the theoretical speed limit for AI safety. It proves we can't build a `Perfect Shield' in a continuous space. However, by using multi-layered, discontinuous defenses and ensuring our boundary behavior is benign, we can operate safely within those limits. The `Manifold of Failure' exists, but we can ensure it's empty of actual harm. The full theory is machine-verified in Lean~4 with Mathlib (37~files,
 $\sim$300 theorems, zero \texttt{sorry}, three standard axioms) and
 validated against empirical findings from three frontier LLMs. \url{https://github.com/mbhatt1/stuff/tree/main/ManifoldProofs}
 \end{abstract}
@@ -195,6 +196,8 @@ for each.
     theory via Tietze extension (\Cref{thm:tietze}).
   \item Direct discrete impossibility results requiring no topology
     (\Cref{sec:discrete}).
+  \item Multi-turn, stochastic, and capacity parity extensions
+    (\Cref{sec:extensions}).
   \item Counterexamples proving each hypothesis is necessary
     (\Cref{sec:counterexamples}).
   \item Supporting theorems: basin structure, fragmentation,
@@ -203,7 +206,7 @@ for each.
     (\Cref{sec:landscape,sec:attacks,sec:stability,sec:cost}).
   \item Theory--experiment correspondence with three LLMs
     (\Cref{sec:experiments}).
-  \item Lean~4 artifact: 36 files, $\sim$300 theorems, zero
+  \item Lean~4 artifact: 37 files, $\sim$300 theorems, zero
     \texttt{sorry}, three standard axioms (\Cref{sec:artifact}).
 \end{itemize}
 
@@ -605,6 +608,90 @@ bounded-capacity defense must eventually be overwhelmed by the attack
 surface. The continuous and discrete paths arrive at the same conclusion
 by different routes.
 
+% ============================================================
+\section{Extensions: Multi-Turn, Stochastic, and Capacity Parity}
+\label{sec:extensions}
+
+A natural objection to the preceding results is that they assume a
+static, deterministic, single-turn defense. Real systems are multi-turn,
+stochastic, and may have capacity comparable to the attacker. We show
+that the impossibility survives all three extensions.
+
+\subsection{Multi-Turn Impossibility}
+
+Modern LLMs maintain state across conversation turns. One might hope
+that a defense could use accumulated context to progressively eliminate
+boundary vulnerabilities. This does not work.
+
+\begin{theorem}[Multi-Turn Impossibility]
+\label{thm:multi-turn}
+Let $\{f_t, D_t\}_{t=1}^T$ be a sequence of alignment functions and
+defenses over $T$ turns, where each $f_t$ is continuous with safe and
+unsafe regions, and each $D_t$ is continuous and utility-preserving.
+Then for \emph{every} turn~$t$, there exists $z_t$ with
+$f_t(z_t) = \tau$ and $D_t(z_t) = z_t$.
+\end{theorem}
+
+\begin{proof}
+Apply \Cref{thm:main} to $(f_t, D_t)$ at each turn. The functions
+$f_t$ and $D_t$ may depend on the full history of previous turns---this
+does not matter. At each timestep, the defense faces a fresh instance
+of boundary fixation on the current alignment surface.
+\end{proof}
+
+The impossibility does not accumulate or diminish over turns---it
+simply recurs. Memory, context, and adaptive strategies do not change
+the topology of the current turn's alignment surface.
+
+\subsection{Stochastic Defense Impossibility}
+
+If the defense is randomized---mapping each input to a distribution
+over outputs rather than a fixed point---one might hope that the
+boundary fixation dissolves in expectation.
+
+\begin{theorem}[Stochastic Defense Impossibility]
+\label{thm:stochastic}
+Let $f\colon X \to \R$ be continuous on a connected Hausdorff space
+with $S_\tau, U_\tau \neq \emptyset$. Let $D$ be a stochastic defense,
+and define $g(x) = \mathbb{E}_{y \sim D(x)}[f(y)]$ (the expected
+alignment deviation after defense). If $g$ is continuous and $g(x) =
+f(x)$ for all $x \in S_\tau$ (utility preservation in expectation),
+then there exists $z$ with $f(z) = \tau$ and $g(z) = \tau$.
+\end{theorem}
+
+\begin{proof}
+The function $h = g - f$ is continuous and vanishes on $S_\tau$. Since
+$S_\tau$ is dense in $\cl{S_\tau}$ and $\{h = 0\}$ is closed, $h$
+vanishes on $\cl{S_\tau}$. Any $z \in \cl{S_\tau} \setminus S_\tau$
+satisfies $f(z) = \tau$ (by the argument of \Cref{thm:main}) and
+$g(z) = f(z) = \tau$. The defense cannot reduce even the
+\emph{expected} alignment deviation below $\tau$ at these points.
+\end{proof}
+
+Randomization does not help: the expected alignment deviation after a
+stochastic defense inherits the same boundary fixation as a
+deterministic one.
+
+\subsection{Capacity Parity}
+
+Even when the defense has the same computational capacity as the
+attacker, utility preservation acts as a structural tax.
+
+\begin{theorem}[Capacity Parity Disadvantage]
+\label{thm:capacity}
+Let the defense and attacker both operate on a space of $N$ inputs,
+of which $|S_\tau|$ are safe. The defense must implement identity on
+all safe inputs, consuming $|S_\tau|$ of its capacity. The attacker
+faces no such constraint. Under capacity parity ($C = N$), the
+defense's effective free capacity is $N - |S_\tau| < N$, giving the
+attacker a permanent edge of $|S_\tau|$ capacity units.
+\end{theorem}
+
+This is a counting argument: utility preservation is not free. Every
+safe input the defense must leave untouched is one fewer degree of
+freedom available for remapping unsafe inputs. The attacker, who has
+no obligation to preserve anything, retains full capacity.
+
 
 % ============================================================
 \section{The Vulnerability Landscape}
@@ -806,7 +893,7 @@ boundary.
 \label{sec:artifact}
 
 The complete theory is verified in Lean~4.28.0 with Mathlib~v4.28.0.
-The artifact comprises 36 files:
+The artifact comprises 37 files:
 \begin{itemize}[nosep]
   \item 10 core theory files (MoF\_01--MoF\_10)
   \item 10 cost theory files (MoF\_Cost\_01--MoF\_Cost\_10)
@@ -815,6 +902,8 @@ The artifact comprises 36 files:
   \item 1 $\varepsilon$-robust + persistent unsafe region
     (MoF\_11\_EpsilonRobust)
   \item 1 discrete impossibility (MoF\_12\_Discrete)
+  \item 1 multi-turn + stochastic + capacity parity
+    (MoF\_13\_MultiTurn)
   \item 3 capstone files (MasterTheorem, Euclidean instantiation,
     verification)
 \end{itemize}
@@ -890,11 +979,11 @@ preservation together create an anchor at the boundary that constrains
 what the defense can do in its neighborhood, and metric structure
 (Lipschitz bounds) makes this constraint quantitative and volumetric.
 
-The discrete-continuous gap is addressed in two ways: the Tietze
-extension shows every continuous interpolant inherits all three
-impossibilities, and a parallel set of discrete results
-(\Cref{sec:discrete}) establishes boundary fixation and capacity
-exhaustion directly on finite sets with no topology at all.
+The discrete-continuous gap is addressed via Tietze extension and a
+parallel set of purely discrete results (\Cref{sec:discrete}). The
+impossibility extends to multi-turn interactions (recurs every turn),
+stochastic defenses (randomization does not help), and capacity parity
+(utility preservation taxes the defense even with equal resources).
 Supporting theorems show that vulnerabilities come in
 basins, attacks converge and transfer, vulnerabilities survive
 fine-tuning, and defense cost grows exponentially. Each result is
@@ -904,7 +993,7 @@ The practical prescription: make the boundary shallow (raise~$\tau$),
 smooth (reduce~$L$), and low-dimensional (constrain the interface).
 GPT-5-Mini's ceiling at $\AD = 0.50$ shows this working in practice.
 
-The full theory is machine-verified in Lean~4: 36 files, approximately
+The full theory is machine-verified in Lean~4: 37 files, approximately
 300 theorems, zero \texttt{sorry}, three standard axioms.
 
 
