@@ -76,8 +76,8 @@ We prove that no continuous, utility-preserving wrapper defense
 function $D\colon X\to X$ that preprocesses inputs before the model
 sees them, can eliminate all safety violations from a language model
 with connected prompt space, and we characterize exactly where every
-such defense must fail. We establish three results of increasing
-strength: \emph{boundary fixation}---the defense must leave some
+such defense must fail. We establish three results under
+successively stronger hypotheses: \emph{boundary fixation}---the defense must leave some
 threshold-level inputs unchanged; an \emph{$\varepsilon$-robust
 constraint}---under Lipschitz regularity, a positive-measure band
 around fixed boundary points remains near-threshold; and a
@@ -119,9 +119,9 @@ The impossibility is not about specific attacks or clever prompt
 engineering. It arises from the \emph{geometry} of the prompt space
 itself: in a connected space, the safe region is open but not closed,
 so any continuous defense that fixes safe inputs must also fix points
-on the safety boundary. We establish three results, each strictly
-stronger than the last (\Cref{fig:escalation} provides visual
-intuition):
+on the safety boundary. Under successively stronger hypotheses,
+we establish three results with progressively stronger conclusions
+(\Cref{fig:escalation}):
 
 \paragraph{Boundary fixation (\Cref{thm:main}).}
 The defense must fix at least one boundary point, i.e., a prompt where
@@ -564,9 +564,8 @@ directional slope exceeding~$\ell(K+1)$ at the boundary:
 \begin{proposition}[Transversality from Directional Derivative]
 \label{prop:transversality}
 In a normed space, if $f$ has directional derivative $c > \ell(K+1)$
-along a unit vector $v$ at boundary point $z$ (i.e.,
-$f(z + tv) \geq \tau + ct$ for small $t > 0$), then
-$z + tv \in \mathcal{S}$ for sufficiently small $t$.
+along a unit vector $v$ at boundary point $z$, then
+$z + tv \in \mathcal{S}$ for sufficiently small $t > 0$.
 Verified in Lean as \texttt{transversality\_from\_deriv}.
 \end{proposition}
 
@@ -900,12 +899,15 @@ $K \geq 2$, the effective constant is $K^n$---exponential in depth.
 \begin{theorem}[Pipeline Impossibility]
 \label{thm:pipeline-impossible}
 If the composed pipeline $P = T_n \circ \cdots \circ T_1 \circ D$ is
-continuous and utility-preserving, then $P$ has boundary fixed points.
-The $\varepsilon$-robust band scales as $L(K^n + 1)\delta$.
+continuous and $P(x) = x$ for all $x \in S_\tau$, then $P$ has
+boundary fixed points. The $\varepsilon$-robust band scales as
+$L(K^n + 1)\delta$.
 \end{theorem}
 
-Each additional pipeline stage exponentially widens the
-$\varepsilon$-robust band.
+Note: $P(x) = x$ for safe~$x$ requires $T_n \circ \cdots \circ T_1$
+to act as the identity on safe inputs, not just~$D$. This holds when
+the tool chain preserves safe inputs (e.g., a safety-certified
+pipeline), but not for arbitrary tools.
 
 
 % ============================================================
