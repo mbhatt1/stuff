@@ -905,25 +905,6 @@ vanishes on $S_\tau$ and is continuous, so it vanishes on $\cl{S_\tau}$.
 The expected post-defense score at the boundary is still~$\tau$.
 Randomization cannot beat the topology.
 
-\subsection{Capacity Parity}
-
-Even when the defense has equal computational resources to the
-attacker, it faces a structural asymmetry:
-
-\begin{theorem}[Capacity Parity Disadvantage]
-\label{thm:capacity}
-The defense must satisfy two constraints simultaneously---correct
-classification (distinguishing $S_\tau$ from $U_\tau$) and utility
-preservation (identity on $S_\tau$)---while the attacker need only
-find one input in $U_\tau$. The defense's hypothesis class must
-represent both the decision boundary and the identity function on
-the safe side, while the attacker's search is unconstrained.
-\end{theorem}
-
-Utility preservation is a structural tax on the defense that the
-attacker does not pay: the attacker explores freely, while the
-defense must simultaneously preserve and filter.
-
 \subsection{Nonlinear Agent Pipelines}
 
 Modern AI agents chain multiple processing stages; pipeline depth
@@ -1090,14 +1071,6 @@ impossible, deploy runtime monitoring that detects approach to the
 boundary. The Lipschitz bound (\Cref{thm:lipschitz}) gives a
 computable estimate of distance to the boundary from any observed AD
 value.
-
-\paragraph{5. Break the asymmetry with architectural separation.}
-The defense must simultaneously classify and preserve
-(\Cref{thm:capacity}), while the attacker only searches. Separate
-the defense from the utility pipeline---e.g., a lightweight
-classifier that flags, paired with a separate response
-generator---to decouple the two tasks.
-
 
 % ============================================================
 \section{Limitations}
@@ -1488,7 +1461,7 @@ The artifact comprises 45 files:
   \item 1 $\varepsilon$-robust + persistent unsafe region
     (MoF\_11\_EpsilonRobust)
   \item 1 discrete impossibility (MoF\_12\_Discrete)
-  \item 1 multi-turn + stochastic + capacity parity
+  \item 1 multi-turn + stochastic extensions
     (MoF\_13\_MultiTurn)
   \item 1 representation-independent meta-theorem
     (MoF\_14\_MetaTheorem)
