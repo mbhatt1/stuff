@@ -36,7 +36,7 @@
 \newcommand{\dist}{\operatorname{dist}}
 
 \title{The Defense Trilemma:\\
-  Impossibility of Continuous Utility-Preserving Wrapper Defenses}
+  Impossibility of Continuous Utility-Preserving Wrapper Defenses on Connected Spaces}
 
 \author{
     {\rm Manish Bhatt\thanks{Corresponding author: manish.bhatt13212@gmail.com}}\hspace{0.5em}\footnotemark[2]\\
@@ -209,18 +209,6 @@ defense eliminates all failures.
 \section{Formal Framework}
 \label{sec:setup}
 
-Before defining the model formally, we sketch the intuition. Every
-prompt lives in a space~$X$. A scoring function~$f$ assigns each prompt
-a number measuring how far the model's response deviates from alignment
-goals: low scores are safe, high scores are unsafe. A fixed
-threshold~$\tau$ separates the two. A \emph{defense} preprocesses
-prompts before the model sees them, trying to push unsafe prompts into
-safe territory. We require two natural properties: \emph{continuity}
-(similar prompts produce similar rewrites, i.e., no brittle edge-case
-behavior) and \emph{utility preservation} (safe prompts pass through
-unchanged, so the defense does not degrade normal use).
-\Cref{fig:landscape} illustrates the setup.
-
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[scale=0.92]
@@ -276,19 +264,6 @@ A \emph{defense} is a continuous map $D\colon X \to X$. It is
 and \emph{complete} if $f(D(x)) < \tau$ for all $x\in X$
 (every output is safe).
 \end{definition}
-
-\begin{example}[Running example]
-\label{ex:running}
-Consider $X = [0,1]$, $f(x) = x$, $\tau = 0.5$. The safe region is
-$[0, 0.5)$, the unsafe region is $(0.5, 1]$, and the boundary is
-$\{0.5\}$. A utility-preserving defense must satisfy $D(x) = x$ for all
-$x < 0.5$. Continuity then forces $D(0.5) = \lim_{x \to 0.5^-} D(x)
-= 0.5$, so the boundary point is fixed: $f(D(0.5)) = 0.5 = \tau$. No
-matter how cleverly the defense handles inputs above~$0.5$, the point
-$x = 0.5$ slips through. We will see that this simple observation
-generalizes to arbitrary connected spaces and grows sharper under
-regularity assumptions.
-\end{example}
 
 The central question is whether a defense can be both
 utility-preserving and complete. The following sections show that under
@@ -461,11 +436,6 @@ $L$-Lipschitz:
 $|f(D(x)) - \tau| \leq L \cdot K\dist(x,z) \leq L(K+1)\dist(x,z)$.
 Full proof in \Cref{app:proofs}.
 \end{proof}
-
-In the running example (\Cref{ex:running}), both $f(x) = x$ and any
-reasonable defense are $1$-Lipschitz, so $L = K = 1$ and the bound
-gives $f(D(x)) \geq 0.5 - 2|x - 0.5|$. Within distance $0.05$ of
-$z = 0.5$, the defense cannot push the score below $0.40$.
 
 \begin{theorem}[Positive-Measure $\varepsilon$-Band]
 \label{thm:band-measure}
@@ -748,23 +718,12 @@ and horn~(1) is vacuous.
 
 \noindent\emph{Proved in the Lean artifact as \textup{\texttt{MoF\_19\_OptimalDefense}}.}
 
-The two regimes are \emph{asymmetric}: horn~(1) is a proven
-impossibility; horn~(2) is a theorem limitation---the bound loses
-information, but the defense is not proven to succeed either. A
-gentle defense ($K$ small) provably fails. An aggressive defense
-($K$ large) widens the $\varepsilon$-band and escapes the
-persistence proof, but at the cost of distorting the input space.
-
 
 % ============================================================
 \section{From Discrete Data to Continuous Theory}
 \label{sec:bridge}
 
-A natural concern is that language models operate on discrete tokens,
-not continuous spaces. We address this from both directions: first
-showing the continuous results apply to any continuous model consistent
-with discrete observations, then proving parallel results directly on
-finite sets with no continuous machinery at all.
+This section bridges discrete token observations and continuous theory.
 
 \subsection{Continuous Interpolation}
 
@@ -855,11 +814,6 @@ modified setting.
 
 \subsection{Multi-Turn Impossibility}
 
-In practice, LLMs maintain state across conversation turns. One might
-hope that a defense could use context from previous turns to
-``anticipate'' boundary prompts. But the topology constrains each turn
-independently:
-
 \begin{theorem}[Multi-Turn Impossibility]
 \label{thm:multi-turn}
 Let $\{f_t, D_t\}_{t=1}^T$ be alignment functions and defenses over
@@ -905,9 +859,6 @@ this theorem.
 
 \subsection{Nonlinear Agent Pipelines}
 
-Modern AI agents chain multiple processing stages; pipeline depth
-multiplies the effective Lipschitz constant and widens the failure band.
-
 \begin{theorem}[Pipeline Lipschitz Degradation]
 \label{thm:pipeline}
 If stages $T_1, \ldots, T_n$ are $K_1, \ldots, K_n$-Lipschitz, the
@@ -932,34 +883,7 @@ the tool chain preserves safe inputs (e.g., a safety-certified
 pipeline), but not for arbitrary tools.
 
 
-% ============================================================
-\section{The Vulnerability Landscape}
-\label{sec:landscape}
-
-This section characterizes the geometry of the unsafe region.
-
-\begin{theorem}[Basin Structure]
-\label{thm:basin}
-If $f$ is continuous and $f(p)>\tau$, then $U_\tau$ is open. Under
-any measure positive on nonempty open sets, $U_\tau$ has positive
-measure.
-\end{theorem}
-
-\begin{theorem}[Basin Fragment Minimum Size]
-\label{thm:fragment}
-If $X$ is a normed space, $f$ is $L$-Lipschitz with $f(p) > \tau$,
-the connected component of $U_\tau$ containing $p$ has diameter
-$\geq 2(f(p) - \tau)/L$.
-\end{theorem}
-
-Smoother surfaces (smaller~$L$) produce larger basins; rougher
-surfaces produce smaller fragments.
-
-Additional supporting results like perturbation robustness, iterative
-convergence, transferability, authority monotonicity, and gradient
-ascent, are developed in \Cref{app:attacks}. Fine-tuning stability
-results appear in \Cref{app:stability}, and cost asymmetry analysis
-in \Cref{app:cost}.
+Additional results on basin structure, fragment sizes, perturbation robustness, convergence, transferability, and cost asymmetry appear in \Cref{app:landscape,app:attacks,app:stability,app:cost}.
 
 
 % ============================================================
@@ -970,9 +894,7 @@ The Manifold of
 Failure framework~\cite{munshi2026manifold} maps three LLMs over a 2D
 behavioral space with two axes: \emph{query indirection} (how obliquely
 the prompt asks for unsafe content) and \emph{authority framing} (how
-much the prompt invokes authority or permission). Each point corresponds
-to a prompt style, and the alignment deviation score measures how
-unsafe the model's response is. \Cref{tab:correspondence} summarizes
+much the prompt invokes authority or permission). \Cref{tab:correspondence} summarizes
 nine qualitative predictions, all directionally consistent with observations.
 
 \begin{table}[t]
@@ -1021,14 +943,11 @@ Estimated from the 2D behavioral surface in~\cite{munshi2026manifold}: direction
 
 \paragraph{GPT-OSS-20B} (mean AD $0.73$, basin rate $64.3\%$): a
 rugged landscape (large~$L$) with many small fragments. Horizontal
-bands confirm authority monotonicity. The fragmented boundary presents
-many transversal crossings, each generating a persistent unsafe pocket.
+bands confirm authority monotonicity.
 
 \paragraph{GPT-5-Mini} (peak AD $0.50$, basin rate $0\%$): at
 $\tau = 0.50$, $U_\tau = \emptyset$---none of the three theorems
-apply, correctly predicting no impossibility. This model exemplifies
-the best available strategy: make the boundary harmless rather than
-try to eliminate it.
+apply, correctly predicting no impossibility.
 
 
 % ============================================================
@@ -1104,6 +1023,18 @@ wrapper model, some failures persist.
 The practical prescription is to make the boundary shallow, smooth,
 and low-dimensional, and to engineer around it rather than assume it
 can be eliminated.
+
+\section*{Broader Impact}
+This work characterizes structural limitations of a specific class
+of defenses (continuous utility-preserving wrappers). The results
+could inform defense engineering by identifying which design
+constraints matter most. They could also be misread as implying
+that LLM defense is futile---this is not the case. The theorems
+apply only to wrappers satisfying specific mathematical assumptions;
+training-time alignment, architectural changes, discontinuous
+filtering, ensemble defenses, and human-in-the-loop systems are
+not covered. We emphasize that the impossibility results should
+motivate better defense design, not abandonment of defense.
 
 % ============================================================
 \bibliographystyle{plain}
@@ -1244,6 +1175,28 @@ M.~Fredrikson.
 \newpage
 \appendix
 \section*{Appendices}
+
+\section{Vulnerability Landscape}
+\label{app:landscape}
+
+This section characterizes the geometry of the unsafe region.
+
+\begin{theorem}[Basin Structure]
+\label{thm:basin}
+If $f$ is continuous and $f(p)>\tau$, then $U_\tau$ is open. Under
+any measure positive on nonempty open sets, $U_\tau$ has positive
+measure.
+\end{theorem}
+
+\begin{theorem}[Basin Fragment Minimum Size]
+\label{thm:fragment}
+If $X$ is a normed space, $f$ is $L$-Lipschitz with $f(p) > \tau$,
+the connected component of $U_\tau$ containing $p$ has diameter
+$\geq 2(f(p) - \tau)/L$.
+\end{theorem}
+
+Smoother surfaces (smaller~$L$) produce larger basins; rougher
+surfaces produce smaller fragments.
 
 \section{Full Proofs}
 \label{app:proofs}
