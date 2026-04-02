@@ -725,8 +725,8 @@ $\varepsilon$-bands, but the band always has positive volume.
 
 \begin{theorem}[Cone Measure Bound]
 \label{thm:cone}
-In $\R$, if $f$ has directional growth rate $c > \ell(K+1)$ at
-boundary point~$z$ on $(z, z + \delta_0)$, then
+In $\R$, if $f(x) \geq \tau + c(x - z)$ for all
+$x \in (z,\, z + \delta_0)$ with $c > \ell(K+1)$, then
 $\mu(\{x : f(D(x)) > \tau\}) \geq \delta_0$.
 \end{theorem}
 
@@ -745,19 +745,22 @@ $K^* = G/\ell - 1$. Then:
 \begin{enumerate}[nosep]
   \item If $K < K^*$: the persistent unsafe region exists
     ($G > \ell(K+1)$, \Cref{thm:persistent} applies).
-  \item If $K \geq K^*$: the defense distorts space at least as much
-    as the alignment gradient ($\ell(K+1) \geq G$).
+  \item If $K \geq K^*$: the $\varepsilon$-robust bound
+    $\tau - \ell(K+1)\delta$ becomes loose enough that the theorem
+    can no longer exclude the defense from succeeding on the steep
+    region ($\ell(K+1) \geq G$).
 \end{enumerate}
-No value of $K$ avoids both failure modes simultaneously. Since
-$\ell \leq L$, the dilemma is sharpest when $\ell \ll L$
+Since $\ell \leq L$, the dilemma is sharpest when $\ell \ll L$
 (anisotropic surfaces). When $\ell = L$ (isotropic), $K^* \leq 0$
-and only the wide-band failure mode applies.
+and horn~(1) is vacuous.
 \end{theorem}
 
-A gentle defense ($K$ small) cannot compensate for steep alignment
-surfaces. An aggressive defense ($K$ large) distorts prompts so
-heavily that the $\varepsilon$-band widens. The defense is caught
-between two failure modes.
+The two regimes are \emph{asymmetric}: horn~(1) is a proven
+impossibility; horn~(2) is a theorem limitation---the bound loses
+information, but the defense is not proven to succeed either. A
+gentle defense ($K$ small) provably fails. An aggressive defense
+($K$ large) widens the $\varepsilon$-band and escapes the
+persistence proof, but at the cost of distorting the input space.
 
 
 % ============================================================
@@ -817,17 +820,18 @@ Let $X$ be a finite set with $S_\tau, U_\tau \neq \emptyset$, and
 $D\colon X \to X$ utility-preserving ($D(x) = x$ for $f(x) < \tau$).
 \begin{enumerate}[nosep]
   \item If $D$ is injective, then $f(D(u)) \geq \tau$ for every
-    $u \in U_\tau$: the defense is incomplete.
+    $u$ with $f(u) \geq \tau$ (including boundary points): the
+    defense is incomplete.
   \item If $D$ is complete ($f(D(x)) < \tau$ for all~$x$), then $D$ is
     non-injective: $\exists\, x \neq y$ with $D(x) = D(y)$.
 \end{enumerate}
 \end{theorem}
 
 \begin{proof}
-(1) Suppose $D$ is injective and $f(D(u)) < \tau$ for some
-$u \in U_\tau$. Then $D(u)$ is safe, so $D(D(u)) = D(u)$ by utility
-preservation. Injectivity gives $D(u) = u$, so $f(u) = f(D(u)) < \tau$,
-contradicting $u \in U_\tau$.
+(1) Suppose $D$ is injective and $f(D(u)) < \tau$ for some $u$ with
+$f(u) \geq \tau$. Then $D(u)$ is safe, so $D(D(u)) = D(u)$ by utility
+preservation. Injectivity gives $D(u) = u$, so
+$f(u) = f(D(u)) < \tau$, contradicting $f(u) \geq \tau$.
 
 (2) For any $u \in U_\tau$: completeness gives $f(D(u)) < \tau$, so
 utility preservation gives $D(D(u)) = D(u)$. But
