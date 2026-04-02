@@ -900,8 +900,9 @@ $K \geq 2$, the effective constant is $K^n$---exponential in depth.
 \label{thm:pipeline-impossible}
 If the composed pipeline $P = T_n \circ \cdots \circ T_1 \circ D$ is
 continuous and $P(x) = x$ for all $x \in S_\tau$, then $P$ has
-boundary fixed points. The $\varepsilon$-robust band scales as
-$L(K^n + 1)\delta$.
+boundary fixed points. If $D$ is $K_D$-Lipschitz and each $T_i$ is
+$K$-Lipschitz, the $\varepsilon$-robust band scales as
+$L(K_D \cdot K^n + 1)\delta$.
 \end{theorem}
 
 Note: $P(x) = x$ for safe~$x$ requires $T_n \circ \cdots \circ T_1$
