@@ -232,6 +232,93 @@ dominates across all problems. We prove the analogous result for
 wrapper defenses: under continuity and utility preservation, no
 defense eliminates all failures.
 
+\Cref{tab:comparison} situates our result among comparable
+impossibility and tradeoff theorems.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Positioning among impossibility results (top) and empirical
+findings independently consistent with our predictions (bottom).}
+\label{tab:comparison}
+\begin{tabular}{@{}p{3.4cm}p{2.0cm}p{2.4cm}p{2.4cm}p{2.2cm}@{}}
+\toprule
+\textbf{Result} & \textbf{Target} & \textbf{Method} & \textbf{Impossibility} & \textbf{Verified} \\
+\midrule
+Tsipras et al.\ \cite{tsipras2018robustness}
+  & Classifier
+  & PAC / Gaussian
+  & Robustness + accuracy
+  & No \\[2pt]
+Fawzi et al.\ \cite{fawzi2018adversarial}
+  & Classifier
+  & Lipschitz geom.
+  & Adv.\ invulnerability
+  & No \\[2pt]
+Wolpert \& Macready \cite{wolpert1997no}
+  & Optimizer
+  & Counting
+  & Universal dominance
+  & No \\[2pt]
+Cohen et al.\ \cite{cohen2019certified}
+  & Smoothed clf.
+  & Rand.\ smoothing
+  & (Certifies bound)
+  & No \\[2pt]
+\textbf{This work}
+  & \textbf{Def.\ wrapper}
+  & \textbf{Topology}
+  & \textbf{Cont.\ + util.\ + compl.}
+  & \textbf{Lean 4} \\
+\midrule
+\multicolumn{5}{@{}l}{\textit{Empirical findings consistent with our derived predictions}} \\
+\midrule
+\textbf{Our prediction} & \textbf{Theorem} & \multicolumn{2}{p{4.8cm}}{\textbf{Confirming evidence}} & \textbf{Pred.} \\
+\midrule
+Diminishing safety returns
+  & Int.\ Stability
+  & \multicolumn{2}{p{4.8cm}}{MART~\cite{ge2024mart}; Sleeper Agents~\cite{hubinger2024sleeper}}
+  & \S\ref{sec:engineering} \\[2pt]
+Long context $\to$ exp.\ harder defense
+  & Cost Asymm.
+  & \multicolumn{2}{p{4.8cm}}{Many-Shot Jailbreaking~\cite{anil2024many}; Kim et al.~\cite{kim2025manyshot}}
+  & \S\ref{sec:engineering} \\[2pt]
+Agentic tool-use degrades exp.
+  & Pipeline Lip.
+  & \multicolumn{2}{p{4.8cm}}{InjecAgent~\cite{zhan2024injecagent}; ASB~\cite{zhang2024asb}}
+  & \S\ref{sec:engineering} \\[2pt]
+Temperature boundary instab.
+  & Stoch.\ Imposs.
+  & \multicolumn{2}{p{4.8cm}}{Instability of Safety~\cite{yuan2025instability}}
+  & \S\ref{sec:engineering} \\[2pt]
+Quantization preserves deep vulns
+  & Int.\ Stability
+  & \multicolumn{2}{p{4.8cm}}{Skoltech~\cite{skoltech2025quant}; ETH~\cite{eth2025gguf}}
+  & \S\ref{sec:engineering} \\[2pt]
+Merging preserves weaker parent
+  & Int.\ Stability
+  & \multicolumn{2}{p{4.8cm}}{Hammoud et al.~\cite{hammoud2024merging}}
+  & \S\ref{sec:engineering} \\[2pt]
+Adv.\ training fragments
+  & Fragment Size
+  & \multicolumn{2}{p{4.8cm}}{Whack-a-Mole~\cite{liu2026whackamole}; IRIS~\cite{iris2025}}
+  & \S\ref{sec:engineering} \\[2pt]
+Asymmetric transfer
+  & Transferability
+  & \multicolumn{2}{p{4.8cm}}{Weak-to-Strong~\cite{zhao2025weak}; IRIS~\cite{iris2025}}
+  & \S\ref{sec:engineering} \\[2pt]
+Alignment tax $\propto$ unsafe vol.
+  & Discrete Dil.
+  & \multicolumn{2}{p{4.8cm}}{Safety Tax~\cite{huang2025safetytax}; Huang et al.~\cite{huang2026formal}}
+  & \S\ref{sec:engineering} \\[2pt]
+Patch blast radius
+  & Patching Nonl.
+  & \multicolumn{2}{p{4.8cm}}{Slingshot~\cite{slingshot2026}; Sleeper Agents~\cite{hubinger2024sleeper}}
+  & \S\ref{sec:engineering} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 
 % ============================================================
 \section{Formal Framework}
@@ -1271,6 +1358,95 @@ M.~Fredrikson.
 \newblock Universal and transferable adversarial attacks on aligned
   language models.
 \newblock \emph{arXiv preprint arXiv:2307.15043}, 2023.
+% --- New references for comparison table ---
+
+\bibitem{ge2024mart}
+K.~Ge et~al.
+\newblock {MART}: Improving {LLM} safety with multi-round automatic
+  red-teaming.
+\newblock \emph{Proceedings of NAACL}, 2024.
+
+\bibitem{hubinger2024sleeper}
+E.~Hubinger et~al.
+\newblock Sleeper agents: Training deceptive {LLMs} that persist through
+  safety training.
+\newblock \emph{arXiv preprint arXiv:2401.05566}, 2024.
+
+\bibitem{anil2024many}
+C.~Anil et~al.
+\newblock Many-shot jailbreaking.
+\newblock \emph{Advances in Neural Information Processing Systems}, 37, 2024.
+
+\bibitem{kim2025manyshot}
+D.~Kim et~al.
+\newblock What really matters in many-shot attacks?
+\newblock \emph{Proceedings of ACL}, 2025.
+
+\bibitem{zhan2024injecagent}
+Q.~Zhan et~al.
+\newblock {InjecAgent}: Benchmarking indirect prompt injections in
+  tool-integrated {LLM} agents.
+\newblock \emph{Findings of ACL}, 2024.
+
+\bibitem{zhang2024asb}
+H.~Zhang et~al.
+\newblock Agent security bench ({ASB}): Formalizing and benchmarking
+  attacks and defenses in {LLM}-based agents.
+\newblock \emph{arXiv preprint arXiv:2410.02644}, 2024.
+
+\bibitem{yuan2025instability}
+Y.~Yuan et~al.
+\newblock The instability of safety.
+\newblock \emph{arXiv preprint arXiv:2512.12066}, 2025.
+
+\bibitem{skoltech2025quant}
+V.~Tsvetkov et~al.
+\newblock Quantization and safety: A closer look at {LLM} safety
+  under weight compression.
+\newblock \emph{arXiv preprint arXiv:2502.15799}, 2025.
+
+\bibitem{eth2025gguf}
+F.~Nesti et~al.
+\newblock Mind the gap: Adversarial attacks against {GGUF} quantized
+  {LLMs}.
+\newblock \emph{Proceedings of ICML}, 2025.
+
+\bibitem{hammoud2024merging}
+H.~Hammoud et~al.
+\newblock Model merging and safety alignment: One bad model spoils the
+  bunch.
+\newblock \emph{Findings of EMNLP}, 2024.
+
+\bibitem{liu2026whackamole}
+X.~Liu et~al.
+\newblock Alignment whack-a-mole.
+\newblock \emph{arXiv preprint arXiv:2603.20957}, 2026.
+
+\bibitem{iris2025}
+D.~Rosenberg et~al.
+\newblock {IRIS}: Adversarial suffix attacks against robust defenses.
+\newblock \emph{Proceedings of NAACL}, 2025.
+
+\bibitem{zhao2025weak}
+X.~Zhao et~al.
+\newblock Weak-to-strong jailbreaking on large language models.
+\newblock \emph{Proceedings of ICML}, 2025.
+
+\bibitem{huang2025safetytax}
+Y.~Huang et~al.
+\newblock The safety tax of reasoning alignment.
+\newblock \emph{arXiv preprint arXiv:2503.00555}, 2025.
+
+\bibitem{huang2026formal}
+Y.~Huang et~al.
+\newblock On the geometric inevitability of the alignment tax.
+\newblock \emph{arXiv preprint arXiv:2603.00047}, 2026.
+
+\bibitem{slingshot2026}
+L.~Bailey et~al.
+\newblock Slingshot: {RL}-based agent-to-agent jailbreaking.
+\newblock \emph{arXiv preprint arXiv:2602.02395}, 2026.
+
 \end{thebibliography}
 
 
