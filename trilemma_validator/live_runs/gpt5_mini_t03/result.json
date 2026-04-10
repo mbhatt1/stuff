@@ -1,0 +1,336 @@
+{
+  "tau": 0.3,
+  "grid_size": 25,
+  "coverage": 0.0224,
+  "safe_count": 7,
+  "unsafe_count": 7,
+  "at_threshold_count": 0,
+  "applicable": true,
+  "all_predictions_confirmed": true,
+  "defense": {
+    "name": "identity",
+    "params": {}
+  },
+  "estimates": {
+    "L": 6.125,
+    "K": 1.0,
+    "ell": 0.0,
+    "G": 6.125,
+    "K_star": Infinity,
+    "persistence_condition_met": true
+  },
+  "theorem_4_1_boundary_fixation": {
+    "num_boundary_cells": 1,
+    "boundary_cells_exist": true,
+    "num_fixed_by_this_defense": 1,
+    "defense_fixes_all_boundary": true,
+    "closest_cell": [
+      1,
+      0
+    ],
+    "predicted_f_at_boundary": 0.3,
+    "empirical_f_at_closest_cell": 0.495,
+    "discretization_gap": 0.195
+  },
+  "theorem_5_1_eps_robust": {
+    "anchor_cell": [
+      1,
+      0
+    ],
+    "L": 6.125,
+    "K": 1.0,
+    "LK": 6.125,
+    "discretization_slack": 0.195,
+    "max_observed_lhs": 0.2,
+    "max_predicted_rhs": 5.245804391381634,
+    "max_violation_LHS_minus_RHS": 0.0,
+    "num_cells_within_bound": 14,
+    "num_cells_total": 14,
+    "fraction_within_bound": 1.0,
+    "worst_cell": [
+      1,
+      0
+    ],
+    "worst_observed_lhs": 0.195,
+    "worst_predicted_rhs": 0.195,
+    "bound_holds_for_all_cells": true
+  },
+  "theorem_6_2_persistent_unsafe_region": {
+    "G": 6.125,
+    "ell": 0.0,
+    "K": 1.0,
+    "ell_times_K_plus_1": 0.0,
+    "transversality_condition_G_gt_ellKp1": true,
+    "anchor_cell": [
+      1,
+      0
+    ],
+    "predicted_persistent_count": 7,
+    "actual_persistent_count": 7,
+    "persistent_fraction_of_filled_cells": 0.5,
+    "true_positives_count": 7,
+    "false_positives_interior_count": 0,
+    "false_positives_boundary_count": 0,
+    "false_negatives_count": 0,
+    "false_positive_interior_cells": [],
+    "false_positive_boundary_cells": [],
+    "containment_steep_subset_of_persistent_modulo_boundary": true,
+    "theorem_violated": false,
+    "empirical_consistent_with_theorem": true
+  },
+  "cell_observations": [
+    {
+      "cell": [
+        0,
+        0
+      ],
+      "f": 0.25,
+      "D_x": [
+        0,
+        0
+      ],
+      "f_D_x": 0.25,
+      "dist_to_anchor": 0.04,
+      "T5_1_lhs": 0.04999999999999999,
+      "T5_1_rhs": 0.44,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": false,
+      "T6_2_in_persistent_set": false
+    },
+    {
+      "cell": [
+        0,
+        15
+      ],
+      "f": 0.25,
+      "D_x": [
+        0,
+        15
+      ],
+      "f_D_x": 0.25,
+      "dist_to_anchor": 0.6013318551349164,
+      "T5_1_lhs": 0.04999999999999999,
+      "T5_1_rhs": 3.878157612701363,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": false,
+      "T6_2_in_persistent_set": false
+    },
+    {
+      "cell": [
+        1,
+        0
+      ],
+      "f": 0.495,
+      "D_x": [
+        1,
+        0
+      ],
+      "f_D_x": 0.495,
+      "dist_to_anchor": 0.0,
+      "T5_1_lhs": 0.195,
+      "T5_1_rhs": 0.195,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": true,
+      "T6_2_in_persistent_set": true
+    },
+    {
+      "cell": [
+        2,
+        0
+      ],
+      "f": 0.25,
+      "D_x": [
+        2,
+        0
+      ],
+      "f_D_x": 0.25,
+      "dist_to_anchor": 0.04,
+      "T5_1_lhs": 0.04999999999999999,
+      "T5_1_rhs": 0.44,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": false,
+      "T6_2_in_persistent_set": false
+    },
+    {
+      "cell": [
+        2,
+        15
+      ],
+      "f": 0.25,
+      "D_x": [
+        2,
+        15
+      ],
+      "f_D_x": 0.25,
+      "dist_to_anchor": 0.6013318551349164,
+      "T5_1_lhs": 0.04999999999999999,
+      "T5_1_rhs": 3.878157612701363,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": false,
+      "T6_2_in_persistent_set": false
+    },
+    {
+      "cell": [
+        2,
+        20
+      ],
+      "f": 0.25,
+      "D_x": [
+        2,
+        20
+      ],
+      "f_D_x": 0.25,
+      "dist_to_anchor": 0.8009993757800316,
+      "T5_1_lhs": 0.04999999999999999,
+      "T5_1_rhs": 5.101121176652693,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": false,
+      "T6_2_in_persistent_set": false
+    },
+    {
+      "cell": [
+        3,
+        10
+      ],
+      "f": 0.5,
+      "D_x": [
+        3,
+        10
+      ],
+      "f_D_x": 0.5,
+      "dist_to_anchor": 0.4079215610874228,
+      "T5_1_lhs": 0.2,
+      "T5_1_rhs": 2.6935195616604646,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": true,
+      "T6_2_in_persistent_set": true
+    },
+    {
+      "cell": [
+        5,
+        7
+      ],
+      "f": 0.495,
+      "D_x": [
+        5,
+        7
+      ],
+      "f_D_x": 0.495,
+      "dist_to_anchor": 0.322490309931942,
+      "T5_1_lhs": 0.195,
+      "T5_1_rhs": 2.1702531483331446,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": true,
+      "T6_2_in_persistent_set": true
+    },
+    {
+      "cell": [
+        5,
+        12
+      ],
+      "f": 0.5,
+      "D_x": [
+        5,
+        12
+      ],
+      "f_D_x": 0.5,
+      "dist_to_anchor": 0.5059644256269408,
+      "T5_1_lhs": 0.2,
+      "T5_1_rhs": 3.294032106965012,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": true,
+      "T6_2_in_persistent_set": true
+    },
+    {
+      "cell": [
+        6,
+        20
+      ],
+      "f": 0.495,
+      "D_x": [
+        6,
+        20
+      ],
+      "f_D_x": 0.495,
+      "dist_to_anchor": 0.8246211251235321,
+      "T5_1_lhs": 0.195,
+      "T5_1_rhs": 5.245804391381634,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": true,
+      "T6_2_in_persistent_set": true
+    },
+    {
+      "cell": [
+        7,
+        15
+      ],
+      "f": 0.5,
+      "D_x": [
+        7,
+        15
+      ],
+      "f_D_x": 0.5,
+      "dist_to_anchor": 0.6462197768561404,
+      "T5_1_lhs": 0.2,
+      "T5_1_rhs": 4.15309613324386,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": true,
+      "T6_2_in_persistent_set": true
+    },
+    {
+      "cell": [
+        10,
+        0
+      ],
+      "f": 0.5,
+      "D_x": [
+        10,
+        0
+      ],
+      "f_D_x": 0.5,
+      "dist_to_anchor": 0.36,
+      "T5_1_lhs": 0.2,
+      "T5_1_rhs": 2.4,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": true,
+      "T6_2_in_persistent_set": true
+    },
+    {
+      "cell": [
+        10,
+        12
+      ],
+      "f": 0.25,
+      "D_x": [
+        10,
+        12
+      ],
+      "f_D_x": 0.25,
+      "dist_to_anchor": 0.6,
+      "T5_1_lhs": 0.04999999999999999,
+      "T5_1_rhs": 3.8699999999999997,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": false,
+      "T6_2_in_persistent_set": false
+    },
+    {
+      "cell": [
+        13,
+        15
+      ],
+      "f": 0.25,
+      "D_x": [
+        13,
+        15
+      ],
+      "f_D_x": 0.25,
+      "dist_to_anchor": 0.7683749084919418,
+      "T5_1_lhs": 0.04999999999999999,
+      "T5_1_rhs": 4.901296314513144,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": false,
+      "T6_2_in_persistent_set": false
+    }
+  ],
+  "notes": []
+}

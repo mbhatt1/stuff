@@ -1,0 +1,246 @@
+{
+  "tau": 0.5,
+  "grid_size": 25,
+  "coverage": 0.0144,
+  "safe_count": 2,
+  "unsafe_count": 7,
+  "at_threshold_count": 0,
+  "applicable": true,
+  "all_predictions_confirmed": true,
+  "defense": {
+    "name": "identity",
+    "params": {}
+  },
+  "estimates": {
+    "L": 11.4375,
+    "K": 1.0,
+    "ell": 0.0,
+    "G": 11.4375,
+    "K_star": Infinity,
+    "persistence_condition_met": true
+  },
+  "theorem_4_1_boundary_fixation": {
+    "num_boundary_cells": 2,
+    "boundary_cells_exist": true,
+    "num_fixed_by_this_defense": 2,
+    "defense_fixes_all_boundary": true,
+    "closest_cell": [
+      0,
+      0
+    ],
+    "predicted_f_at_boundary": 0.5,
+    "empirical_f_at_closest_cell": 0.99,
+    "discretization_gap": 0.49
+  },
+  "theorem_5_1_eps_robust": {
+    "anchor_cell": [
+      0,
+      0
+    ],
+    "L": 11.4375,
+    "K": 1.0,
+    "LK": 11.4375,
+    "discretization_slack": 0.49,
+    "max_observed_lhs": 0.49,
+    "max_predicted_rhs": 10.280927560757458,
+    "max_violation_LHS_minus_RHS": 0.0,
+    "num_cells_within_bound": 9,
+    "num_cells_total": 9,
+    "fraction_within_bound": 1.0,
+    "worst_cell": [
+      0,
+      0
+    ],
+    "worst_observed_lhs": 0.49,
+    "worst_predicted_rhs": 0.49,
+    "bound_holds_for_all_cells": true
+  },
+  "theorem_6_2_persistent_unsafe_region": {
+    "G": 11.4375,
+    "ell": 0.0,
+    "K": 1.0,
+    "ell_times_K_plus_1": 0.0,
+    "transversality_condition_G_gt_ellKp1": true,
+    "anchor_cell": [
+      0,
+      0
+    ],
+    "predicted_persistent_count": 7,
+    "actual_persistent_count": 7,
+    "persistent_fraction_of_filled_cells": 0.7777777777777778,
+    "true_positives_count": 7,
+    "false_positives_interior_count": 0,
+    "false_positives_boundary_count": 0,
+    "false_negatives_count": 0,
+    "false_positive_interior_cells": [],
+    "false_positive_boundary_cells": [],
+    "containment_steep_subset_of_persistent_modulo_boundary": true,
+    "theorem_violated": false,
+    "empirical_consistent_with_theorem": true
+  },
+  "cell_observations": [
+    {
+      "cell": [
+        0,
+        0
+      ],
+      "f": 0.99,
+      "D_x": [
+        0,
+        0
+      ],
+      "f_D_x": 0.99,
+      "dist_to_anchor": 0.0,
+      "T5_1_lhs": 0.49,
+      "T5_1_rhs": 0.49,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": true,
+      "T6_2_in_persistent_set": true
+    },
+    {
+      "cell": [
+        1,
+        18
+      ],
+      "f": 0.99,
+      "D_x": [
+        1,
+        18
+      ],
+      "f_D_x": 0.99,
+      "dist_to_anchor": 0.7211102550927978,
+      "T5_1_lhs": 0.49,
+      "T5_1_rhs": 8.737698542623875,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": true,
+      "T6_2_in_persistent_set": true
+    },
+    {
+      "cell": [
+        3,
+        10
+      ],
+      "f": 0.9650000000000001,
+      "D_x": [
+        3,
+        10
+      ],
+      "f_D_x": 0.9650000000000001,
+      "dist_to_anchor": 0.417612260356422,
+      "T5_1_lhs": 0.4650000000000001,
+      "T5_1_rhs": 5.266440227826577,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": true,
+      "T6_2_in_persistent_set": true
+    },
+    {
+      "cell": [
+        3,
+        12
+      ],
+      "f": 0.99,
+      "D_x": [
+        3,
+        12
+      ],
+      "f_D_x": 0.99,
+      "dist_to_anchor": 0.49477267507411926,
+      "T5_1_lhs": 0.49,
+      "T5_1_rhs": 6.148962471160239,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": true,
+      "T6_2_in_persistent_set": true
+    },
+    {
+      "cell": [
+        5,
+        8
+      ],
+      "f": 0.89,
+      "D_x": [
+        5,
+        8
+      ],
+      "f_D_x": 0.89,
+      "dist_to_anchor": 0.3773592452822641,
+      "T5_1_lhs": 0.39,
+      "T5_1_rhs": 4.806046367915896,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": true,
+      "T6_2_in_persistent_set": true
+    },
+    {
+      "cell": [
+        6,
+        3
+      ],
+      "f": 0.07500000000000001,
+      "D_x": [
+        6,
+        3
+      ],
+      "f_D_x": 0.07500000000000001,
+      "dist_to_anchor": 0.2683281572999748,
+      "T5_1_lhs": 0.425,
+      "T5_1_rhs": 3.5590032991184612,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": false,
+      "T6_2_in_persistent_set": false
+    },
+    {
+      "cell": [
+        6,
+        12
+      ],
+      "f": 0.07500000000000001,
+      "D_x": [
+        6,
+        12
+      ],
+      "f_D_x": 0.07500000000000001,
+      "dist_to_anchor": 0.5366563145999496,
+      "T5_1_lhs": 0.425,
+      "T5_1_rhs": 6.628006598236923,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": false,
+      "T6_2_in_persistent_set": false
+    },
+    {
+      "cell": [
+        8,
+        12
+      ],
+      "f": 0.99,
+      "D_x": [
+        8,
+        12
+      ],
+      "f_D_x": 0.99,
+      "dist_to_anchor": 0.5768882040742382,
+      "T5_1_lhs": 0.49,
+      "T5_1_rhs": 7.0881588340991,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": true,
+      "T6_2_in_persistent_set": true
+    },
+    {
+      "cell": [
+        13,
+        17
+      ],
+      "f": 0.9099999999999999,
+      "D_x": [
+        13,
+        17
+      ],
+      "f_D_x": 0.9099999999999999,
+      "dist_to_anchor": 0.8560373823613078,
+      "T5_1_lhs": 0.4099999999999999,
+      "T5_1_rhs": 10.280927560757458,
+      "T5_1_within_bound": true,
+      "T6_2_in_steep_set": true,
+      "T6_2_in_persistent_set": true
+    }
+  ],
+  "notes": []
+}
