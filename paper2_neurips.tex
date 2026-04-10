@@ -1093,41 +1093,52 @@ gpt-3.5-turbo-0125 (saturated)  & $0.50$ & $82$  & $23.63$ & $23.63$ & $66$ & $6
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth]{figures/theory_vs_reality_saturated.pdf}
-\caption{Theory vs reality on the saturated live run, side by side.
-Both panels show the same $25 \times 25$ behavioral grid for
-\texttt{gpt-3.5-turbo-0125} with $82$ filled cells (the rest were
-not sampled by the MAP-Elites budget). Each filled cell is colored
-red if it is in the persistent unsafe set under the criterion at
-the top of its panel, green otherwise; the $10$ boundary cells
-$\overline{S_\tau}\setminus S_\tau$ are outlined in black.
-\textbf{Left:} the cells Theorem~\ref{thm:persistent} \emph{predicts}
-will remain persistent after defense, $\mathcal{S}_{\text{pred}} =
-\{x : f(x) > \tau\}$ under the canonical continuous defense
-($D = \mathrm{id}$, $K = 1$, $\ell = 0$); $|\mathcal{S}_{\text{pred}}|
-= 66$. \textbf{Right:} the cells that \emph{actually} remain
-persistent in the data, $\mathcal{S}_{\text{act}} =
-\{x : f(D(x)) > \tau\}$; $|\mathcal{S}_{\text{act}}| = 66$. The two
-panels are identical cell-for-cell: every cell red on the left is
-also red on the right ($82$ matches out of $82$, zero
-discrepancies). Any cell red on the left and green on the right
-would be a counterexample to Theorem~\ref{thm:persistent}; there
-are none.}
+\includegraphics[width=\textwidth]{figures/oblique_theory_vs_reality.pdf}
+\caption{Non-vacuous validation of Theorem~\ref{thm:persistent}
+on the saturated \texttt{gpt-3.5-turbo-0125} grid ($82$ filled
+cells, $\tau = 0.5$) under the GP-smooth oblique defense
+($\theta = 89.5^\circ$, $\ell = 0.86$, $K = 1.05$).
+\textbf{Left:} the \emph{steep set}
+$\mathcal{S}_{\text{steep}} = \{x : f(x) > \tau +
+\ell(K{+}1)\,d(x,z^{*})\}$; $|\mathcal{S}_{\text{steep}}| = 3$.
+\textbf{Right:} cells that \emph{actually} remain unsafe after
+defense, $\mathcal{S}_{\text{act}} = \{x : f(D(x)) > \tau\}$;
+$|\mathcal{S}_{\text{act}}| = 68$.
+Transversality holds non-trivially
+($G = 23.6 \gg \ell(K{+}1) = 1.77$) and the defense is genuinely
+non-identity ($82$ cells displaced). All $3$ predicted-persistent
+cells are indeed actually persistent
+(TP${} = 3$, FP${}_{\text{int}} = 0$).
+The $65$ false negatives (red on the right, green on the left) are
+\emph{not} theorem violations: the theorem predicts
+$\mathcal{S}_{\text{steep}} \subseteq \mathcal{S}_{\text{act}}$,
+not equality. The $8$ boundary cells (black outlines) are identified
+on the GP-smoothed surface.}
 \label{fig:theory-vs-reality-saturated}
 \end{figure}
 
-On the saturated run, every one of the $66$ predicted-persistent
-cells is also actually persistent under identity, with zero false
-positives and zero false negatives---the predicted set
-$\mathcal{S}_{\text{pred}}$ and the empirical set
-$\mathcal{S}_{\text{act}}$ are \emph{the same set of $66$ cells},
-on a real OpenAI model surface, with no model-specific tuning of
-the validator. Theorem~\ref{thm:eps-robust}'s $\varepsilon$-robust
-bound also holds for all $82$ filled cells under identity, with
-worst-case empirical $|f(D(x)) - \tau|$ of $0.50$ vs.\ predicted
-maximum $LK\dist(x, z^{*}) + |f(z^{*}) - \tau| = 29.30$, a
-$\sim$$59\times$ margin. Theorem~\ref{thm:main}'s boundary fixation
-is non-vacuously activated: $10$ boundary cells exist in
+On the saturated run, the GP-smooth oblique defense
+(\Cref{fig:theory-vs-reality-saturated}) displaces all $82$ filled
+cells at $89.5^\circ$ from the negative GP gradient (nearly tangent
+to level curves, with a small safety-seeking component), achieving
+$\ell = 0.86$, $K = 1.05$. Transversality holds with wide margin
+($G = 23.6 \gg \ell(K{+}1) = 1.77$), and the predicted steep set
+contains $3$ cells, all confirmed to remain unsafe after defense
+(TP${} = 3$, FP${}_{\text{int}} = 0$). This is a
+non-tautological result: the defense genuinely moves cells
+($D \neq \mathrm{id}$), and the theorem's containment
+$\mathcal{S}_{\text{steep}} \subseteq \mathcal{S}_{\text{act}}$ is
+non-vacuously tested.
+The full defense sweep (Table~\ref{tab:live-sweep}) additionally
+confirms zero interior false positives across all $7$ discrete
+defenses (identity plus \texttt{bounded\_step} at various reach
+values); on all non-identity defenses $\ell = L$, so
+transversality fails and the theorem makes only the negative
+prediction (``no counterexample is allowed'').
+Theorem~\ref{thm:eps-robust}'s $\varepsilon$-robust bound holds
+for all $82$ filled cells under each defense tested.
+Theorem~\ref{thm:main}'s boundary fixation is non-vacuously
+activated: $10$ boundary cells exist in
 $\cl{S_\tau} \setminus S_\tau$ and the closest one to $\tau$ sits
 at $|f(z^{*}) - \tau| = 0.375$, the discretization gap that
 vanishes under grid refinement.
@@ -1190,6 +1201,26 @@ preconditions fail and the validator correctly reports
 ``not applicable''---matching the qualitative GPT-5-Mini
 observation above and confirming the theorem's silence in the
 right place.
+
+\paragraph{Non-vacuous GP-smooth oblique defense.}
+The discrete bounded-step defenses all have $\ell = L$ because
+they displace cells along the steepest direction. To test the
+theorem's anisotropic regime ($\ell < L$, $G > \ell(K{+}1)$), we
+fit a 2D Gaussian Process to the 82 filled cells (RBF kernel,
+$\sigma = 0.2$) and construct a \emph{smooth oblique defense}:
+$D(x) = x + \alpha\,\beta(\mu(x))\,v(x)$, where $v(x)$ is
+displaced $89.5^\circ$ from the negative gradient of the GP
+posterior (nearly tangent to level curves, with a small gradient-descent
+component). This gives empirical $\ell = 0.86$, $K = 1.05$,
+$\ell(K{+}1) = 1.77$---well below $G = 23.6$, so
+\textbf{transversality holds}. The predicted steep set contains
+$3$ cells, all of which are confirmed to remain unsafe after
+defense (TP${} = 3$, FP${}_{\text{int}} = 0$). This is the
+first non-tautological, non-vacuous confirmation of
+Theorem~\ref{thm:persistent} on real LLM data: the defense is
+genuinely non-identity ($D \neq \mathrm{id}$, 82 cells displaced),
+transversality is non-trivially satisfied, and every
+predicted-persistent cell is indeed actually persistent.
 
 The validator is available as a small standalone Python package
 (\texttt{trilemma\_validator/} in the repository), with subcommands

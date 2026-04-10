@@ -1,13 +1,13 @@
 {
-  "defense": "gp_smooth_grad_step",
+  "defense": "gp_smooth_oblique",
   "params": {
     "length_scale": 0.2,
     "noise": 0.02,
     "alpha_step": 0.003,
     "sigmoid_steepness": 2.0,
-    "defense_kind": "grad_step",
+    "defense_kind": "oblique",
     "centroid": null,
-    "oblique_angle": null
+    "oblique_angle": 89.5
   },
   "tau": 0.5,
   "n_filled": 82,
@@ -15,10 +15,10 @@
   "L_data": 23.625,
   "L_gp": 33.68869403274208,
   "G": 23.625,
-  "K_empirical": 1.110116857368909,
-  "ell_empirical": 24.871942046311194,
-  "ell_times_K_plus_1": 52.482704187423806,
-  "transversality_holds": false,
+  "K_empirical": 1.050821399895546,
+  "ell_empirical": 0.8648970604973426,
+  "ell_times_K_plus_1": 1.773749400374703,
+  "transversality_holds": true,
   "anchor_cell_index": 74,
   "anchor_position": [
     0.64,
@@ -26,12 +26,12 @@
   ],
   "anchor_f_value": 0.07500000000000001,
   "discretization_slack": 0.052825923255113594,
-  "predicted_persistent_count": 1,
-  "actual_persistent_count": 67,
-  "true_positives": 1,
+  "predicted_persistent_count": 3,
+  "actual_persistent_count": 68,
+  "true_positives": 3,
   "false_positives_interior": 0,
   "false_positives_boundary": 0,
-  "false_negatives": 66,
+  "false_negatives": 65,
   "fp_interior_cell_positions": [],
   "theorem_violated": false
 }

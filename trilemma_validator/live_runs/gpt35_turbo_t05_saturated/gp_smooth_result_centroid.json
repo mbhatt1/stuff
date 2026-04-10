@@ -3,13 +3,14 @@
   "params": {
     "length_scale": 0.2,
     "noise": 0.02,
-    "alpha_step": 0.04,
-    "sigmoid_steepness": 20.0,
+    "alpha_step": 0.003,
+    "sigmoid_steepness": 2.0,
     "defense_kind": "centroid",
     "centroid": [
       0.43999999999999995,
       0.5285714285714286
-    ]
+    ],
+    "oblique_angle": null
   },
   "tau": 0.5,
   "n_filled": 82,
@@ -17,9 +18,9 @@
   "L_data": 23.625,
   "L_gp": 33.68869403274208,
   "G": 23.625,
-  "K_empirical": 1.312106808746803,
-  "ell_empirical": 20.89949541018828,
-  "ell_times_K_plus_1": 48.32186563726888,
+  "K_empirical": 1.0093454627323624,
+  "ell_empirical": 20.88660516144118,
+  "ell_times_K_plus_1": 41.96840531302418,
   "transversality_holds": false,
   "anchor_cell_index": 74,
   "anchor_position": [
