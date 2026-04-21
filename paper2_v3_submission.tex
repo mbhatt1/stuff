@@ -68,10 +68,15 @@ same obstruction reappears in three extensions: discrete finite-set
 defenses must collapse distinct inputs to be complete; multi-turn
 wrappers inherit boundary fixation at every turn; stochastic wrappers
 with continuous expected score inherit threshold-level failure in
-expectation. The theory is \textbf{mechanically verified in Lean~4
-with Mathlib} across 46 files containing ${\sim}360$ theorems, with no
-admitted proofs and only three standard axioms
+expectation. The theory is \textbf{formalized in Lean~4 with Mathlib}
+across 46 files containing ${\sim}360$ declarations, with no admitted
+proofs and only three standard axioms
 (\url{https://anonymous.4open.science/r/defense-trilemma-XXXX}).
+The artifact's primary value is definitional scaffolding ---
+unambiguously pinning down continuity, utility preservation, and
+Lipschitz regularity in a shared language that survives translation
+between prose and code --- plus verified cross-references between
+theorem statements.
 Empirically, on real LLM safety surfaces the predicted boundary and
 persistence structure appears under continuous defenses, and a
 discrete forced-collapse experiment exhibits the information-loss
@@ -383,6 +388,20 @@ $D(x) = x_0$ to a fixed safe point). But this destroys all semantic
 content: every prompt produces the same response. The score-preservation
 conditions formalize the requirement that defense must not destroy
 utility, without requiring the defense to be the identity.
+\end{remark}
+
+\begin{remark}[Open: utility-floor relaxation]
+\label{rem:utility-floor}
+Between exact identity on $S_\tau$ and the constant map lies a
+realistic band of deployed wrappers that satisfy
+$D(S_\tau) \subseteq S_\tau$ plus a \emph{utility floor}: e.g.,
+embedding similarity $\mathrm{sim}(D(x), x) \geq \gamma$ for all
+$x \in S_\tau$. Whether the boundary-fixation obstruction persists
+under such a utility-floor hypothesis is an open question.
+A positive answer would substantially strengthen the practical reach
+of \Cref{thm:main}; a negative answer (a constructive complete
+defense satisfying the utility floor) would sharpen the boundary of
+the impossibility.
 \end{remark}
 
 
@@ -761,7 +780,11 @@ We ran live against the OpenAI API with \texttt{gpt-3.5-turbo-0125} (target) and
 \subsubsection{Non-vacuous validation: continuous defenses}
 \label{sec:gp-instance}
 
-We fit a GP (RBF, $\sigma{=}0.2$) to the 82 cells and construct a smooth oblique defense $D(x) = x + \alpha\,\beta(\mu(x))\,v(x)$ displaced $89.5^\circ$ from the GP gradient. Empirical estimates: $\hat\ell = 0.86$, $\hat K = 1.05$, $\hat G = 23.6$, so $\hat\ell(\hat K{+}1) = 1.77 \ll \hat G$ and transversality holds non-trivially. Result: $|\mathcal{S}_{\text{pred}}| = 3$, all actually persistent ($\mathrm{TP}{=}3$, $\mathrm{FP}_{\mathrm{int}}{=}0$; \Cref{fig:theory-vs-reality-saturated}).
+Theorem~\ref{thm:persistent} has non-trivial quantitative content only when $\hat G > \hat\ell(\hat K{+}1)$, i.e., when the alignment surface rises faster than the defense can pull it down.
+A sweep over four continuous defense families (\Cref{tab:continuous-sweep} in appendix) reveals that \emph{most natural defenses fail this condition}: \textsc{SmoothNearestSafe}, \textsc{KernelSmoothed}, and \textsc{SoftProj} all produce $\hat\ell(\hat K{+}1) \gg \hat G$ because they align displacement with $-\nabla f$, which maximizes~$\hat\ell$.
+The theorem becomes a non-vacuous \emph{diagnostic} when the defense direction diverges from $\nabla f$: measured $(\hat G, \hat\ell, \hat K)$ with $\hat\ell \ll L$ signals a construction that fights its own gradient.
+
+We demonstrate this diagnostic on a GP-smooth oblique defense $D(x) = x + \alpha\,\beta(\mu(x))\,v(x)$ displaced $89.5^\circ$ from the GP gradient (RBF kernel, $\sigma{=}0.2$, 82 cells). This is a deliberately adversarial defense direction chosen to enter the transversal regime. Estimates: $\hat\ell = 0.86$, $\hat K = 1.05$, $\hat G = 23.6$, so $\hat\ell(\hat K{+}1) = 1.77 \ll \hat G$. Result: $|\mathcal{S}_{\text{pred}}| = 3$, all actually persistent ($\mathrm{TP}{=}3$, $\mathrm{FP}_{\mathrm{int}}{=}0$; \Cref{fig:theory-vs-reality-saturated}). Theorem~\ref{thm:dilemma}'s optimal constant $K^* = \hat G/\hat\ell - 1 \approx 26.5$ gives a concrete design constraint: defenses with $K < K^*$ admit persistent cells; defenses with $K \geq K^*$ destroy utility (\Cref{fig:k-tradeoff} in appendix).
 
 \begin{figure}[h]
 \centering
@@ -792,33 +815,25 @@ not equality.}
 Appendix sweeps over three defense families, multiple kernels, and grid resolutions preserve $\mathrm{FP}_{\mathrm{int}} = 0$. Theorem~\ref{thm:eps-robust}'s $\varepsilon$-robust bound holds on all 82 cells, and 10 boundary cells in $\cl{S_\tau} \setminus S_\tau$ activate boundary fixation (nearest to $\tau$: gap $= 0.375$, vanishing under refinement). Bootstrap, seed replication, and judge-robustness checks all preserve the claim (\Cref{app:exp-details}). A three-target sweep (gpt-3.5-turbo, gpt-4o-mini, gpt-4o) yields $\mathrm{FP}_{\mathrm{int}} = 0$ in every row (\Cref{tab:three-target} in appendix).
 
 \paragraph{Discrete classifier-gate footprint.}
-The strongest compact illustration outside the continuous regime is the
-deployed-gate map in \Cref{fig:classifier-gate-maps}. On the same 82
-sampled archive cells, Llama-Guard-3-1B collapses to 7 MLC-taxonomy
-labels while passing 51/82 prompts as \texttt{safe}; ShieldGemma-2B
-collapses to 2 labels while passing 56/82. Both therefore sit on the
-injective-incomplete horn of \Cref{thm:disc-dilemma}: some structure is
-preserved, but majority incompleteness remains. Full numeric tables and
-the forced-collapse / injective-paraphrase appendix follow in
-\Cref{tab:llamaguard-demo,tab:forced-collapse,tab:paraphrase-unsafe}.
+\Cref{fig:classifier-gate-maps} maps two deployed gates on the same 82-cell archive.
+Llama-Guard-3-1B collapses to 7 MLC-taxonomy labels while passing 51/82 prompts as \texttt{safe}; ShieldGemma-2B collapses to 2 labels while passing 56/82. Both sit on the injective-incomplete horn of \Cref{thm:disc-dilemma}: structure is preserved, but majority incompleteness remains.
+For the forced-collapse test (\Cref{tab:forced-collapse} in appendix), a refusal defense collapses 66 unsafe inputs to 1 output, a canonical-category defense to 7, while an injective paraphrase defense produces 66 distinct rewrites---of which 1 remains above $\tau$ (\Cref{tab:paraphrase-unsafe}), the predicted incomplete witness.
+The well-aligned target (gpt-5-mini, peak AD $= 0.5$) yields $U_\tau = \emptyset$ and the theorems are correctly silent.
+Full numeric tables: \Cref{tab:llamaguard-demo,tab:forced-collapse,tab:paraphrase-unsafe}.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.49\textwidth]{figures/llamaguard_gate_map.pdf}
+\includegraphics[width=0.46\textwidth]{figures/llamaguard_gate_map.pdf}
 \hfill
-\includegraphics[width=0.49\textwidth]{figures/shieldgemma_gate_map.pdf}
-\caption{Behavioral-map footprint of the two deployed classifier gates on
-the same 25$\times$25 saturated archive used elsewhere in the paper.
-Left panel in each map: original archive classification under the target
-model's AD score. Right panel: the gate's verdicts placed back on the
-same filled cells. Llama-Guard-3-1B preserves 7 labels while letting 51
-of 82 sampled cells pass as \texttt{safe}; ShieldGemma-2B collapses to 2
-labels and lets 56 of 82 sampled cells pass as \texttt{safe}.}
+\includegraphics[width=0.46\textwidth]{figures/shieldgemma_gate_map.pdf}
+\caption{Behavioral-map footprint of two deployed classifier gates on
+the same 25$\times$25 saturated archive.
+Left: original classification under the target model's AD score.
+Right: gate verdicts on the same filled cells.
+Llama-Guard-3-1B preserves 7 labels, passing 51/82 as \texttt{safe};
+ShieldGemma-2B collapses to 2 labels, passing 56/82.}
 \label{fig:classifier-gate-maps}
 \end{figure}
-
-\paragraph{Discrete validation.}
-On the same 82-cell archive, Llama-Guard-3-1B passes 51/82 prompts as \texttt{safe} while collapsing to 7 categories; ShieldGemma-2B passes 56/82 while collapsing to 2 (\Cref{fig:classifier-gate-maps}). Both sit on the injective-incomplete horn of \Cref{thm:disc-dilemma}. For the forced-collapse test (\Cref{tab:forced-collapse} in appendix), a refusal defense collapses 66 unsafe inputs to 1 output, a canonical-category defense to 7, while an injective paraphrase defense produces 66 distinct rewrites—of which 1 remains above $\tau$ (\Cref{tab:paraphrase-unsafe}), the predicted incomplete witness. The well-aligned target (gpt-5-mini, peak AD $= 0.5$) yields $U_\tau = \emptyset$ and the theorems are correctly silent.
 
 
 % ============================================================
@@ -1043,7 +1058,8 @@ H.~Hammoud et~al.
 
 \bibitem{liu2026whackamole}
 X.~Liu et~al.
-\newblock Alignment whack-a-mole.
+\newblock Alignment whack-a-mole: Finetuning activates verbatim recall of
+  copyrighted books in large language models.
 \newblock \emph{arXiv preprint arXiv:2603.20957}, 2026.
 
 \bibitem{iris2025}
@@ -1062,13 +1078,14 @@ Y.~Huang et~al.
 \newblock \emph{arXiv preprint arXiv:2503.00555}, 2025.
 
 \bibitem{huang2026formal}
-Y.~Huang et~al.
-\newblock On the geometric inevitability of the alignment tax.
+R.~Young.
+\newblock What is the alignment tax?
 \newblock \emph{arXiv preprint arXiv:2603.00047}, 2026.
 
 \bibitem{slingshot2026}
-L.~Bailey et~al.
-\newblock Slingshot: {RL}-based agent-to-agent jailbreaking.
+S.~Nellessen and T.~Kachman.
+\newblock David vs.\ Goliath: Verifiable agent-to-agent jailbreaking
+  via reinforcement learning.
 \newblock \emph{arXiv preprint arXiv:2602.02395}, 2026.
 
 \end{thebibliography}
@@ -1132,8 +1149,10 @@ $U_\tau = \emptyset$, so the impossibility theorems do not apply.
 Smaller~$L$ tightens $\ell \leq L$, potentially narrowing the persistent region.
 
 \paragraph{3. Reduce the effective dimension.}
-Defense cost grows as $N^d$ (\Cref{thm:cost}). Constraining the prompt
-interface reduces~$d$.
+Under grid-based exhaustive-enumeration defenses, cost grows as $N^d$
+(\Cref{thm:cost}); learning-based defenses that generalize across the
+space may sidestep this exponential bound. Constraining the prompt
+interface reduces~$d$ regardless of defense strategy.
 
 \paragraph{4. Monitor, don't eliminate, the boundary.}
 Transversal crossings persist under fine-tuning (\Cref{thm:crossing})
@@ -1552,13 +1571,19 @@ distant points.
 \section{Cost Asymmetry}
 \label{app:cost}
 
-\begin{theorem}[Exponential Cost Asymmetry]
+\begin{theorem}[Cost Asymmetry for Grid-Enumeration Defenses]
 \label{thm:cost}
-For grid-based defense with $N \geq 2$ bins per axis in $d$ dimensions:
+For \emph{grid-based exhaustive-enumeration} defense with $N \geq 2$
+bins per axis in $d$ dimensions:
 attack cost $\leq 1/\delta$ (dimension-independent); defense cost
 $= N^d$ (exponential in~$d$); ratio
 $\delta \cdot N^d \to \infty$ as $d\to\infty$.
 \end{theorem}
+
+\noindent\textit{Caveat.} This bound applies to grid enumeration, not
+to learning-based defenses (e.g., GP surrogates) that generalize across
+the space without evaluating every cell. The paper's own empirical
+section uses such surrogates at cost $\ll N^d$.
 
 At $d=2$ with $N=25$ and $\delta=0.01$, the ratio is $6.25$.
 At $d=10$, it climbs to $\sim 10^{12}$.
@@ -1924,10 +1949,20 @@ iterations, stronger refiner) is predicted to find one by
 \section{Lean Artifact}
 \label{app:artifact}
 
-The complete theory is verified in Lean~4.28.0 with Mathlib~v4.28.0,
+The complete theory is formalized in Lean~4.28.0 with Mathlib~v4.28.0,
 available at
 \url{https://anonymous.4open.science/r/defense-trilemma-XXXX}.
-The artifact comprises 46 files:
+The artifact serves two roles: (1)~definitional scaffolding that
+pins down every hypothesis (continuity, utility preservation,
+Lipschitz, transversality) in a machine-readable form, ensuring
+no translation drift between prose and formal statement; and
+(2)~verified cross-references between theorem statements, so that
+the dependency chain
+(\Cref{thm:main}$\to$\Cref{thm:eps-robust}$\to$\Cref{thm:persistent})
+is mechanically checked.
+The proofs themselves are short (the underlying mathematics is not
+deep); the artifact's value is precision, not error-checking.
+It comprises 46 files:
 \begin{itemize}[nosep]
   \item 10 core theory files (MoF\_01--MoF\_10)
   \item 10 cost theory files (MoF\_Cost\_01--MoF\_Cost\_10)
